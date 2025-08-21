@@ -15,6 +15,12 @@ import {
   Bell,
   HelpCircle,
   BookOpen,
+  ShapesIcon,
+  Shapes,
+  Activity,
+  AlertCircle,
+  Star,
+  Heart,
 } from "lucide-react";
 import { Outlet, useLocation } from "react-router-dom";
 import { Link } from "react-router-dom";
@@ -28,16 +34,23 @@ const AdminSidebar = ({
 }) => {
   const location = useLocation();
   
-  const navigationItems = [
-    { id: "dashboard", label: "Dashboard", icon: Home, path: "/admin/dashboard" },
-    { id: "users", label: "Users", icon: Users, path: "/admin/users" },
-    { id: "binge-eating-tips", label: "binge eating tips", icon: BookOpen, path: "/admin/binge-eating-tips" },
-  ];
+
+const navigationItems = [
+  { id: "dashboard", label: "Dashboard", icon: Home, path: "/admin/dashboard" },
+  { id: "users", label: "Users", icon: Users, path: "/admin/users" },
+  { id: "binge-eating-tips", label: "Binge Eating Tips", icon: BookOpen, path: "/admin/binge-eating-tips" },
+  { id: "body-shape-tips", label: "Body Shape Tips", icon: Shapes, path: "/admin/body-shape-tips" },
+  { id: "depression-tips", label: "Depression Tips", icon: Activity, path: "/admin/depression-tips" },
+  { id: "failing-tips", label: "Failing Tips", icon: AlertCircle, path: "/admin/failing-tips" },
+  { id: "general-tips", label: "General Tips", icon: Star, path: "/admin/general-tips" },
+  { id: "guilt-tips", label: "Guilt Tips", icon: Heart, path: "/admin/guilt-tips" },
+];
+
 
   const SidebarItem = ({ item, isActive, onClick }) => (
     <button
       onClick={() => onClick(item.id)}
-      className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+      className={`w-full flex items-center space-x-3 px-2 py-3 rounded-lg transition-all duration-200 ${
         isActive
           ? "bg-blue-50 text-blue-700 border-r-2 border-blue-600"
           : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
@@ -65,7 +78,7 @@ const AdminSidebar = ({
         className={`${
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0 fixed inset-y-0 left-0 z-50 ${
-          sidebarOpen ? "w-64" : "w-16"
+          sidebarOpen ? "w-64" : "w-20"
         } bg-white border-r border-gray-200 transition-all duration-300`}
       >
         <div className="flex flex-col h-full">
@@ -77,7 +90,7 @@ const AdminSidebar = ({
                 <span className="text-xl font-bold text-gray-900">Admin</span>
               </div>
             )}
-            <button
+            {/* <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="p-2 rounded-lg hover:bg-gray-100 hidden lg:block"
             >
@@ -86,7 +99,7 @@ const AdminSidebar = ({
               ) : (
                 <ChevronRight className="w-4 h-4" />
               )}
-            </button>
+            </button> */}
             <button
               onClick={() => setMobileMenuOpen(false)}
               className="p-2 rounded-lg hover:bg-gray-100 lg:hidden"

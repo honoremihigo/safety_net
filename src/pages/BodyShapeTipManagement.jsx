@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Plus, Edit, Trash2, X, ChevronLeft, ChevronRight, BookOpen, Tag, FileText, Search, RefreshCw, Calendar, Lightbulb, Eye } from "lucide-react";
-import { addTip, getAllTips, updateTip, deleteTip } from "../services/bingeEatingTipsService";
+import { Plus, Edit, Trash2, X, ChevronLeft, ChevronRight, BookOpen, Tag, FileText, Search,Eye, RefreshCw, Calendar, Lightbulb } from "lucide-react";
+import { addBodyShapeTip, getAllBodyShapeTips, updateBodyShapeTip, deleteBodyShapeTip } from "../services/bodyShapeTipsService";
 import { isAuthenticated } from "../services/authService";
 import { useNavigate } from "react-router-dom";
 import Swal from 'sweetalert2';
 
-export default function BingeEatingTipsManagement() {
+export default function BodyShapeTipsManagement() {
   const [tips, setTips] = useState([]);
   const [filteredTips, setFilteredTips] = useState([]);
   const [title, setTitle] = useState("");
@@ -19,7 +19,7 @@ export default function BingeEatingTipsManagement() {
   const [selectedTip, setSelectedTip] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
-  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [itemsPerPage] = useState(5);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -48,7 +48,7 @@ export default function BingeEatingTipsManagement() {
     }
     
     try {
-      const fetchedTips = await getAllTips();
+      const fetchedTips = await getAllBodyShapeTips();
       setTips(fetchedTips);
       setFilteredTips(fetchedTips);
       
@@ -57,10 +57,9 @@ export default function BingeEatingTipsManagement() {
           icon: 'success',
           title: 'Refreshed!',
           text: 'Tips refreshed successfully!',
+          position: 'center',
           timer: 2000,
-          showConfirmButton: false,
-          toast: true,
-          position: 'top-end'
+          showConfirmButton: false
         });
       }
     } catch (error) {
@@ -68,6 +67,7 @@ export default function BingeEatingTipsManagement() {
         icon: 'error',
         title: 'Error!',
         text: `Failed to fetch tips: ${error.message}`,
+        position: 'center',
         confirmButtonColor: '#6366f1'
       });
     } finally {
@@ -82,27 +82,25 @@ export default function BingeEatingTipsManagement() {
 
     try {
       if (editingTipId) {
-        await updateTip(editingTipId, { title, content, category });
+        await updateBodyShapeTip(editingTipId, { title, content, category });
         Swal.fire({
           icon: 'success',
           title: 'Updated!',
           text: 'Tip updated successfully!',
+          position: 'center',
           timer: 2000,
-          showConfirmButton: false,
-          toast: true,
-          position: 'top-end'
+          showConfirmButton: false
         });
         setEditingTipId(null);
       } else {
-        await addTip({ title, content, category });
+        await addBodyShapeTip({ title, content, category });
         Swal.fire({
           icon: 'success',
           title: 'Added!',
           text: 'Tip added successfully!',
+          position: 'center',
           timer: 2000,
-          showConfirmButton: false,
-          toast: true,
-          position: 'top-end'
+          showConfirmButton: false
         });
       }
       setTitle("");
@@ -116,6 +114,7 @@ export default function BingeEatingTipsManagement() {
         icon: 'error',
         title: 'Error!',
         text: `Failed to ${editingTipId ? 'update' : 'add'} tip: ${error.message}`,
+        position: 'center',
         confirmButtonColor: '#6366f1'
       });
     } finally {
@@ -136,6 +135,7 @@ export default function BingeEatingTipsManagement() {
       title: 'Are you sure?',
       text: "You won't be able to revert this!",
       icon: 'warning',
+      position: 'center',
       showCancelButton: true,
       confirmButtonColor: '#ef4444',
       cancelButtonColor: '#6b7280',
@@ -145,16 +145,15 @@ export default function BingeEatingTipsManagement() {
 
     if (result.isConfirmed) {
       try {
-        await deleteTip(id);
+        await deleteBodyShapeTip(id);
         setCurrentPage(1);
         Swal.fire({
           icon: 'success',
           title: 'Deleted!',
           text: 'Tip has been deleted successfully!',
+          position: 'center',
           timer: 2000,
-          showConfirmButton: false,
-          toast: true,
-          position: 'top-end'
+          showConfirmButton: false
         });
         fetchTips();
       } catch (error) {
@@ -162,6 +161,7 @@ export default function BingeEatingTipsManagement() {
           icon: 'error',
           title: 'Error!',
           text: `Failed to delete tip: ${error.message}`,
+          position: 'center',
           confirmButtonColor: '#6366f1'
         });
       }
@@ -201,10 +201,10 @@ export default function BingeEatingTipsManagement() {
   const getCategoryColor = (category) => {
     const colors = {
       'Nutrition': 'bg-green-100 text-green-800',
-      'Mindfulness': 'bg-blue-100 text-blue-800',
-      'Exercise': 'bg-orange-100 text-orange-800',
-      'Mental Health': 'bg-purple-100 text-purple-800',
-      'Lifestyle': 'bg-pink-100 text-pink-800',
+      'Fitness': 'bg-blue-100 text-blue-800',
+      'Fashion': 'bg-orange-100 text-orange-800',
+      'Lifestyle': 'bg-purple-100 text-purple-800',
+      'Wellness': 'bg-pink-100 text-pink-800',
       'default': 'bg-gray-100 text-gray-800'
     };
     return colors[category] || colors.default;
@@ -482,9 +482,9 @@ export default function BingeEatingTipsManagement() {
             <div className="p-2 bg-indigo-600 rounded-lg">
               <Lightbulb className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900">Tips Management</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Body Shape Tips Management</h1>
           </div>
-          <p className="text-gray-600">Manage and organize helpful tips for better health</p>
+          <p className="text-gray-600">Manage and organize tips for body shape and wellness</p>
         </div>
 
         {/* Stats Cards */}
@@ -603,7 +603,7 @@ export default function BingeEatingTipsManagement() {
                       {editingTipId ? "Edit Tip" : "Add New Tip"}
                     </h2>
                     <p className="text-sm text-gray-500">
-                      {editingTipId ? "Update tip details" : "Create a new helpful tip"}
+                      {editingTipId ? "Update tip details" : "Create a new body shape tip"}
                     </p>
                   </div>
                   <button
@@ -642,7 +642,7 @@ export default function BingeEatingTipsManagement() {
                       value={content}
                       onChange={(e) => setContent(e.target.value)}
                       className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-gray-900 placeholder-gray-400 resize-none"
-                      placeholder="Share helpful tip details..."
+                      placeholder="Share helpful body shape tip details..."
                       rows="4"
                     />
                   </div>
@@ -658,7 +658,7 @@ export default function BingeEatingTipsManagement() {
                       value={category}
                       onChange={(e) => setCategory(e.target.value)}
                       className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-gray-900 placeholder-gray-400"
-                      placeholder="e.g., Nutrition, Mindfulness, Exercise"
+                      placeholder="e.g., Nutrition, Fitness, Fashion"
                     />
                   </div>
                 </div>
@@ -702,7 +702,7 @@ export default function BingeEatingTipsManagement() {
                     </div>
                     <div>
                       <h2 className="text-xl font-bold text-gray-900">Tip Details</h2>
-                      <p className="text-sm text-gray-500">View complete tip information</p>
+                      <p className="text-sm text-gray-500">View complete body shape tip information</p>
                     </div>
                   </div>
                   <button

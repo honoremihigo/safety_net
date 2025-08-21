@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Plus, Edit, Trash2, X, ChevronLeft, ChevronRight, BookOpen, Tag, FileText, Search, RefreshCw, Calendar, Lightbulb, Eye } from "lucide-react";
-import { addTip, getAllTips, updateTip, deleteTip } from "../services/bingeEatingTipsService";
+import { Plus, Edit, Trash2, X, ChevronLeft, ChevronRight, BookOpen, FileText, Search, Eye,RefreshCw, Calendar, Lightbulb } from "lucide-react";
+import { addDepressionTip, getAllDepressionTips, updateDepressionTip, deleteDepressionTip } from "../services/depressionTipsService";
 import { isAuthenticated } from "../services/authService";
 import { useNavigate } from "react-router-dom";
 import Swal from 'sweetalert2';
 
-export default function BingeEatingTipsManagement() {
+export default function DepressionTipsManagement() {
   const [tips, setTips] = useState([]);
   const [filteredTips, setFilteredTips] = useState([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [category, setCategory] = useState("");
   const [editingTipId, setEditingTipId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -19,7 +18,7 @@ export default function BingeEatingTipsManagement() {
   const [selectedTip, setSelectedTip] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
-  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [itemsPerPage] = useState(5);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,9 +31,9 @@ export default function BingeEatingTipsManagement() {
 
   useEffect(() => {
     const filtered = tips.filter(tip =>
-      tip.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tip.content?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tip.category?.toLowerCase().includes(searchTerm.toLowerCase())
+      tip && tip.title && tip.content &&
+      (tip.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       tip.content.toLowerCase().includes(searchTerm.toLowerCase()))
     );
     setFilteredTips(filtered);
     setCurrentPage(1);
@@ -48,19 +47,26 @@ export default function BingeEatingTipsManagement() {
     }
     
     try {
-      const fetchedTips = await getAllTips();
-      setTips(fetchedTips);
-      setFilteredTips(fetchedTips);
+      const fetchedTips = await getAllDepressionTips();
+      // Validate and filter tips to ensure they have title and content
+      const validTips = fetchedTips.filter(tip => 
+        tip && typeof tip.title === 'string' && typeof tip.content === 'string'
+      );
+      setTips(validTips);
+      setFilteredTips(validTips);
       
+      if (validTips.length !== fetchedTips.length) {
+        console.warn(`Filtered out ${fetchedTips.length - validTips.length} invalid tips missing title or content`);
+      }
+
       if (showRefreshLoader) {
         Swal.fire({
           icon: 'success',
           title: 'Refreshed!',
           text: 'Tips refreshed successfully!',
+          position: 'center',
           timer: 2000,
-          showConfirmButton: false,
-          toast: true,
-          position: 'top-end'
+          showConfirmButton: false
         });
       }
     } catch (error) {
@@ -68,6 +74,7 @@ export default function BingeEatingTipsManagement() {
         icon: 'error',
         title: 'Error!',
         text: `Failed to fetch tips: ${error.message}`,
+        position: 'center',
         confirmButtonColor: '#6366f1'
       });
     } finally {
@@ -82,32 +89,29 @@ export default function BingeEatingTipsManagement() {
 
     try {
       if (editingTipId) {
-        await updateTip(editingTipId, { title, content, category });
+        await updateDepressionTip(editingTipId, { title, content });
         Swal.fire({
           icon: 'success',
           title: 'Updated!',
           text: 'Tip updated successfully!',
+          position: 'center',
           timer: 2000,
-          showConfirmButton: false,
-          toast: true,
-          position: 'top-end'
+          showConfirmButton: false
         });
         setEditingTipId(null);
       } else {
-        await addTip({ title, content, category });
+        await addDepressionTip({ title, content });
         Swal.fire({
           icon: 'success',
           title: 'Added!',
           text: 'Tip added successfully!',
+          position: 'center',
           timer: 2000,
-          showConfirmButton: false,
-          toast: true,
-          position: 'top-end'
+          showConfirmButton: false
         });
       }
       setTitle("");
       setContent("");
-      setCategory("");
       setIsModalOpen(false);
       setCurrentPage(1);
       fetchTips();
@@ -116,6 +120,7 @@ export default function BingeEatingTipsManagement() {
         icon: 'error',
         title: 'Error!',
         text: `Failed to ${editingTipId ? 'update' : 'add'} tip: ${error.message}`,
+        position: 'center',
         confirmButtonColor: '#6366f1'
       });
     } finally {
@@ -124,10 +129,19 @@ export default function BingeEatingTipsManagement() {
   };
 
   const handleEdit = (tip) => {
+    if (!tip || !tip.title || !tip.content) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: 'Cannot edit tip: Missing title or content',
+        position: 'center',
+        confirmButtonColor: '#6366f1'
+      });
+      return;
+    }
     setEditingTipId(tip.id);
     setTitle(tip.title);
     setContent(tip.content);
-    setCategory(tip.category);
     setIsModalOpen(true);
   };
 
@@ -136,6 +150,7 @@ export default function BingeEatingTipsManagement() {
       title: 'Are you sure?',
       text: "You won't be able to revert this!",
       icon: 'warning',
+      position: 'center',
       showCancelButton: true,
       confirmButtonColor: '#ef4444',
       cancelButtonColor: '#6b7280',
@@ -145,16 +160,15 @@ export default function BingeEatingTipsManagement() {
 
     if (result.isConfirmed) {
       try {
-        await deleteTip(id);
+        await deleteDepressionTip(id);
         setCurrentPage(1);
         Swal.fire({
           icon: 'success',
           title: 'Deleted!',
           text: 'Tip has been deleted successfully!',
+          position: 'center',
           timer: 2000,
-          showConfirmButton: false,
-          toast: true,
-          position: 'top-end'
+          showConfirmButton: false
         });
         fetchTips();
       } catch (error) {
@@ -162,6 +176,7 @@ export default function BingeEatingTipsManagement() {
           icon: 'error',
           title: 'Error!',
           text: `Failed to delete tip: ${error.message}`,
+          position: 'center',
           confirmButtonColor: '#6366f1'
         });
       }
@@ -169,6 +184,16 @@ export default function BingeEatingTipsManagement() {
   };
 
   const handleView = (tip) => {
+    if (!tip || !tip.title || !tip.content) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: 'Cannot view tip: Missing title or content',
+        position: 'center',
+        confirmButtonColor: '#6366f1'
+      });
+      return;
+    }
     setSelectedTip(tip);
     setIsViewModalOpen(true);
   };
@@ -177,7 +202,6 @@ export default function BingeEatingTipsManagement() {
     setEditingTipId(null);
     setTitle("");
     setContent("");
-    setCategory("");
     setIsModalOpen(true);
   };
 
@@ -186,7 +210,6 @@ export default function BingeEatingTipsManagement() {
     setEditingTipId(null);
     setTitle("");
     setContent("");
-    setCategory("");
   };
 
   const formatDate = (dateString) => {
@@ -198,19 +221,8 @@ export default function BingeEatingTipsManagement() {
     });
   };
 
-  const getCategoryColor = (category) => {
-    const colors = {
-      'Nutrition': 'bg-green-100 text-green-800',
-      'Mindfulness': 'bg-blue-100 text-blue-800',
-      'Exercise': 'bg-orange-100 text-orange-800',
-      'Mental Health': 'bg-purple-100 text-purple-800',
-      'Lifestyle': 'bg-pink-100 text-pink-800',
-      'default': 'bg-gray-100 text-gray-800'
-    };
-    return colors[category] || colors.default;
-  };
-
   const truncateText = (text, maxLength = 100) => {
+    if (!text || typeof text !== 'string') return 'No content available';
     if (text.length <= maxLength) return text;
     return text.substr(0, maxLength) + '...';
   };
@@ -316,63 +328,62 @@ export default function BingeEatingTipsManagement() {
     <div className="md:hidden">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
         {currentTips.map((tip, index) => (
-          <div key={tip.id} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-            <div className="p-6">
-              {/* Tip Header */}
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-start gap-3 flex-1 min-w-0">
-                  <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white flex-shrink-0">
-                    <Lightbulb size={20} />
+          tip && tip.title && tip.content ? (
+            <div key={tip.id} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+              <div className="p-6">
+                {/* Tip Header */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-start gap-3 flex-1 min-w-0">
+                    <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white flex-shrink-0">
+                      <Lightbulb size={20} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-900 truncate text-sm" title={tip.title}>
+                        {tip.title}
+                      </h3>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900 truncate text-sm" title={tip.title}>
-                      {tip.title}
-                    </h3>
-                    <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full mt-1 ${getCategoryColor(tip.category)}`}>
-                      {tip.category}
-                    </span>
+                  {/* Action Buttons */}
+                  <div className="flex gap-1 flex-shrink-0">
+                    <button
+                      onClick={() => handleView(tip)}
+                      className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                      title="View tip"
+                    >
+                      <Eye size={14} />
+                    </button>
+                    <button
+                      onClick={() => handleEdit(tip)}
+                      className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                      title="Edit tip"
+                    >
+                      <Edit size={14} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(tip.id)}
+                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Delete tip"
+                    >
+                      <Trash2 size={14} />
+                    </button>
                   </div>
                 </div>
-                {/* Action Buttons */}
-                <div className="flex gap-1 flex-shrink-0">
-                  <button
-                    onClick={() => handleView(tip)}
-                    className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                    title="View tip"
-                  >
-                    <Eye size={14} />
-                  </button>
-                  <button
-                    onClick={() => handleEdit(tip)}
-                    className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                    title="Edit tip"
-                  >
-                    <Edit size={14} />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(tip.id)}
-                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    title="Delete tip"
-                  >
-                    <Trash2 size={14} />
-                  </button>
+                {/* Tip Content */}
+                <div className="mb-4">
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    {truncateText(tip.content, 120)}
+                  </p>
                 </div>
-              </div>
-              {/* Tip Content */}
-              <div className="mb-4">
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  {truncateText(tip.content, 120)}
-                </p>
-              </div>
-              {/* Footer */}
-              <div className="pt-4 border-t border-gray-100">
-                <div className="flex items-center gap-2 text-xs text-gray-500">
-                  <Calendar size={12} />
-                  <span>Created {formatDate(tip.createdAt)}</span>
+                {/* Footer */}
+                <div className="pt-4 border-t border-gray-100">
+                  <div className="flex items-center gap-2 text-xs text-gray-500">
+                    <Calendar size={12} />
+                    <span>Created {formatDate(tip.createdAt)}</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          ) : null
         ))}
       </div>
       
@@ -393,78 +404,73 @@ export default function BingeEatingTipsManagement() {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Content</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {currentTips.map((tip, index) => (
-              <tr key={tip.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="text-sm font-mono text-gray-600 bg-gray-100 px-2 py-1 rounded">
-                    {startIndex + index + 1}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white">
-                      <Lightbulb size={16} />
-                    </div>
-                    <div className="max-w-48">
-                      <div className="font-medium text-gray-900 truncate" title={tip.title}>
-                        {tip.title}
+              tip && tip.title && tip.content ? (
+                <tr key={tip.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="text-sm font-mono text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                      {startIndex + index + 1}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white">
+                        <Lightbulb size={16} />
+                      </div>
+                      <div className="max-w-48">
+                        <div className="font-medium text-gray-900 truncate" title={tip.title}>
+                          {tip.title}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="max-w-xs">
-                    <p className="text-sm text-gray-600 truncate" title={tip.content}>
-                      {truncateText(tip.content, 60)}
-                    </p>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full ${getCategoryColor(tip.category)}`}>
-                    <Tag size={12} />
-                    {tip.category}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center gap-2">
-                    <Calendar size={14} className="text-gray-400" />
-                    <span className="text-sm text-gray-600">
-                      {formatDate(tip.createdAt)}
-                    </span>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => handleView(tip)}
-                      className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                      title="View Details"
-                    >
-                      <Eye size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleEdit(tip)}
-                      className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                      title="Edit"
-                    >
-                      <Edit size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(tip.id)}
-                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      title="Delete"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="max-w-xs">
+                      <p className="text-sm text-gray-600 truncate" title={tip.content}>
+                        {truncateText(tip.content, 60)}
+                      </p>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center gap-2">
+                      <Calendar size={14} className="text-gray-400" />
+                      <span className="text-sm text-gray-600">
+                        {formatDate(tip.createdAt)}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleView(tip)}
+                        className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                        title="View Details"
+                      >
+                        <Eye size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleEdit(tip)}
+                        className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                        title="Edit"
+                      >
+                        <Edit size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(tip.id)}
+                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Delete"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ) : null
             ))}
           </tbody>
         </table>
@@ -482,13 +488,13 @@ export default function BingeEatingTipsManagement() {
             <div className="p-2 bg-indigo-600 rounded-lg">
               <Lightbulb className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900">Tips Management</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Depression Tips Management</h1>
           </div>
-          <p className="text-gray-600">Manage and organize helpful tips for better health</p>
+          <p className="text-gray-600">Manage and organize tips for supporting mental health</p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-indigo-100 rounded-lg">
@@ -497,19 +503,6 @@ export default function BingeEatingTipsManagement() {
               <div>
                 <p className="text-sm font-medium text-gray-500">Total Tips</p>
                 <p className="text-2xl font-bold text-gray-900">{tips.length}</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-purple-100 rounded-lg">
-                <Tag className="h-6 w-6 text-purple-600" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-500">Categories</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {[...new Set(tips.map(tip => tip.category))].length}
-                </p>
               </div>
             </div>
           </div>
@@ -533,7 +526,7 @@ export default function BingeEatingTipsManagement() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Search tips by title, content, or category..."
+                placeholder="Search tips by title or content..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
@@ -603,7 +596,7 @@ export default function BingeEatingTipsManagement() {
                       {editingTipId ? "Edit Tip" : "Add New Tip"}
                     </h2>
                     <p className="text-sm text-gray-500">
-                      {editingTipId ? "Update tip details" : "Create a new helpful tip"}
+                      {editingTipId ? "Update tip details" : "Create a new depression tip"}
                     </p>
                   </div>
                   <button
@@ -642,23 +635,8 @@ export default function BingeEatingTipsManagement() {
                       value={content}
                       onChange={(e) => setContent(e.target.value)}
                       className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-gray-900 placeholder-gray-400 resize-none"
-                      placeholder="Share helpful tip details..."
+                      placeholder="Share helpful depression tip details..."
                       rows="4"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-                      Category <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      id="category"
-                      name="category"
-                      type="text"
-                      required
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value)}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-gray-900 placeholder-gray-400"
-                      placeholder="e.g., Nutrition, Mindfulness, Exercise"
                     />
                   </div>
                 </div>
@@ -702,7 +680,7 @@ export default function BingeEatingTipsManagement() {
                     </div>
                     <div>
                       <h2 className="text-xl font-bold text-gray-900">Tip Details</h2>
-                      <p className="text-sm text-gray-500">View complete tip information</p>
+                      <p className="text-sm text-gray-500">View complete depression tip information</p>
                     </div>
                   </div>
                   <button
@@ -717,19 +695,12 @@ export default function BingeEatingTipsManagement() {
                 <div className="space-y-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-500 mb-2">Title</label>
-                    <h3 className="text-2xl font-bold text-gray-900">{selectedTip.title}</h3>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500 mb-2">Category</label>
-                    <span className={`inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg ${getCategoryColor(selectedTip.category)}`}>
-                      <Tag size={16} />
-                      {selectedTip.category}
-                    </span>
+                    <h3 className="text-2xl font-bold text-gray-900">{selectedTip.title || 'No title available'}</h3>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-500 mb-2">Content</label>
                     <div className="bg-gray-50 rounded-lg p-4">
-                      <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">{selectedTip.content}</p>
+                      <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">{selectedTip.content || 'No content available'}</p>
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-200">

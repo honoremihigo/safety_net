@@ -126,7 +126,7 @@ const AdminLayout = () => {
         </header>
 
         {/* Page Content - This is where Outlet would render */}
-        <div className="flex-1 p-4 lg:p-6 overflow-auto mt-16">
+        <div className="flex-1 p-4   overflow-auto mt-10">
           <Outlet />
         </div>
       </main>
