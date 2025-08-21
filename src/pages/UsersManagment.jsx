@@ -110,7 +110,7 @@ export default function UserManagement() {
   };
 
   const getInitials = (firstName, lastName) => {
-    return `${firstName?.[0] || ''}${lastName?.[0] || ''}`;
+    return `${firstName?.[0]?.toUpperCase() || ''}${lastName?.[0]?.toUpperCase() || ''}`;
   };
 
   // Pagination Component
@@ -243,7 +243,7 @@ export default function UserManagement() {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User ID</th>
+             
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
@@ -259,12 +259,12 @@ export default function UserManagement() {
                 
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-                      {getInitials(user.firstName, user.lastName)}
+                    <div className="w-10 h-10 bg-gradient-to-br capitalize from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
+                      {getInitials(user.firstName, user.lastName )} {getInitials(user.lastName || user.firstName ? '' :  user.email) }
                     </div>
                     <div>
                       <div className="font-medium text-gray-900">
-                        {user.firstName} {user.lastName}
+                        {user.firstName} {user.lastName} {user.lastName || user.firstName ? '' : '(Unknown)'}
                       </div>
                       <div className="flex items-center gap-1 mt-1">
                         <div className="w-2 h-2 rounded-full bg-green-500"></div>
@@ -281,14 +281,6 @@ export default function UserManagement() {
                   </div>
                 </td>
 
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center gap-2 text-sm text-gray-900">
-                    <User size={14} className="text-gray-400" />
-                    <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
-                      {user.id}
-                    </span>
-                  </div>
-                </td>
                 
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center gap-2">

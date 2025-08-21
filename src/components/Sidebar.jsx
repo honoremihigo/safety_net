@@ -78,7 +78,7 @@ const navigationItems = [
         className={`${
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0 fixed inset-y-0 left-0 z-50 ${
-          sidebarOpen ? "w-64" : "w-20"
+          sidebarOpen ? "w-80" : "w-20"
         } bg-white border-r border-gray-200 transition-all duration-300`}
       >
         <div className="flex flex-col h-full">

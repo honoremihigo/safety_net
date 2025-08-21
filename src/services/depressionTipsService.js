@@ -4,20 +4,22 @@ import { collection, addDoc, getDocs, getDoc, updateDoc, deleteDoc, doc } from "
 // Add a new depression tip
 export const addDepressionTip = async (tipData) => {
   try {
-    const { title, content } = tipData;
-    if (!title || !content) {
-      throw new Error("Title and content are required");
+    const { color, icon, tip, title } = tipData;
+    if (color === undefined || !icon || !tip || !title) {
+      throw new Error("Color, icon, tip, and title are required");
     }
 
     const tipRef = await addDoc(collection(db, "depression_tips"), {
+      color,
+      icon,
+      tip,
       title,
-      content,
       createdAt: new Date().toISOString()
     });
 
-    return { id: tipRef.id, title, content };
+    return { id: tipRef.id, color, icon, tip, title };
   } catch (error) {
-    throw new Error(error.message || "Failed to add tip");
+    throw new Error(error.message || "Failed to add depression tip");
   }
 };
 
@@ -32,7 +34,7 @@ export const getAllDepressionTips = async () => {
     }));
     return tips;
   } catch (error) {
-    throw new Error(error.message || "Failed to fetch tips");
+    throw new Error(error.message || "Failed to fetch depression tips");
   }
 };
 
@@ -42,32 +44,34 @@ export const getDepressionTipById = async (id) => {
     const tipRef = doc(db, "depression_tips", id);
     const tipDoc = await getDoc(tipRef);
     if (!tipDoc.exists()) {
-      throw new Error("Tip not found");
+      throw new Error("Depression tip not found");
     }
     return { id: tipDoc.id, ...tipDoc.data() };
   } catch (error) {
-    throw new Error(error.message || "Failed to fetch tip");
+    throw new Error(error.message || "Failed to fetch depression tip");
   }
 };
 
 // Update a depression tip
 export const updateDepressionTip = async (id, updatedData) => {
   try {
-    const { title, content } = updatedData;
-    if (!title || !content) {
-      throw new Error("Title and content are required");
+    const { color, icon, tip, title } = updatedData;
+    if (color === undefined || !icon || !tip || !title) {
+      throw new Error("Color, icon, tip, and title are required");
     }
 
     const tipRef = doc(db, "depression_tips", id);
     await updateDoc(tipRef, {
+      color,
+      icon,
+      tip,
       title,
-      content,
       updatedAt: new Date().toISOString()
     });
 
-    return { id, title, content };
+    return { id, color, icon, tip, title };
   } catch (error) {
-    throw new Error(error.message || "Failed to update tip");
+    throw new Error(error.message || "Failed to update depression tip");
   }
 };
 
@@ -78,6 +82,6 @@ export const deleteDepressionTip = async (id) => {
     await deleteDoc(tipRef);
     return true;
   } catch (error) {
-    throw new Error(error.message || "Failed to delete tip");
+    throw new Error(error.message || "Failed to delete depression tip");
   }
 };
