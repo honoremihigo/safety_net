@@ -4,20 +4,18 @@ import { collection, addDoc, getDocs, getDoc, updateDoc, deleteDoc, doc } from "
 // Add a new depression tip
 export const addDepressionTip = async (tipData) => {
   try {
-    const { color, icon, tip, title } = tipData;
-    if (color === undefined || !icon || !tip || !title) {
-      throw new Error("Color, icon, tip, and title are required");
+    const { tip, title } = tipData;
+    if (!tip || !title) {
+      throw new Error("Tip and title are required");
     }
 
     const tipRef = await addDoc(collection(db, "depression_tips"), {
-      color,
-      icon,
       tip,
       title,
       createdAt: new Date().toISOString()
     });
 
-    return { id: tipRef.id, color, icon, tip, title };
+    return { id: tipRef.id, tip, title };
   } catch (error) {
     throw new Error(error.message || "Failed to add depression tip");
   }
@@ -55,21 +53,19 @@ export const getDepressionTipById = async (id) => {
 // Update a depression tip
 export const updateDepressionTip = async (id, updatedData) => {
   try {
-    const { color, icon, tip, title } = updatedData;
-    if (color === undefined || !icon || !tip || !title) {
-      throw new Error("Color, icon, tip, and title are required");
+    const { tip, title } = updatedData;
+    if (!tip || !title) {
+      throw new Error("Tip and title are required");
     }
 
     const tipRef = doc(db, "depression_tips", id);
     await updateDoc(tipRef, {
-      color,
-      icon,
       tip,
       title,
       updatedAt: new Date().toISOString()
     });
 
-    return { id, color, icon, tip, title };
+    return { id, tip, title };
   } catch (error) {
     throw new Error(error.message || "Failed to update depression tip");
   }

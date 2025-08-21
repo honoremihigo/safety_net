@@ -1,21 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { Plus, Edit, Trash2, X, ChevronLeft, ChevronRight, BookOpen, FileText, Search, RefreshCw, Eye, Calendar, Lightbulb } from "lucide-react";
-import { addDepressionTip, getAllDepressionTips, updateDepressionTip, deleteDepressionTip } from "../services/depressionTipsService";
+import { Plus, Edit, Trash2, X, ChevronLeft, ChevronRight, BookOpen, FileText, Search, RefreshCw, MessageSquare, Eye ,Calendar} from "lucide-react";
+import { addCrisisMessage, getAllCrisisMessages, updateCrisisMessage, deleteCrisisMessage } from "../services/crisisMessagesService";
 import { isAuthenticated } from "../services/authService";
 import { useNavigate } from "react-router-dom";
 import Swal from 'sweetalert2';
 
-export default function DepressionTipsManagement() {
-  const [tips, setTips] = useState([]);
-  const [filteredTips, setFilteredTips] = useState([]);
-  const [title, setTitle] = useState("");
-  const [tip, setTip] = useState("");
-  const [editingTipId, setEditingTipId] = useState(null);
+export default function CrisisMessagesManagement() {
+  const [messages, setMessages] = useState([]);
+  const [filteredMessages, setFilteredMessages] = useState([]);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [contact, setContact] = useState("");
+  const [message, setMessage] = useState("");
+  const [editingMessageId, setEditingMessageId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [selectedTip, setSelectedTip] = useState(null);
+  const [selectedMessage, setSelectedMessage] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [itemsPerPage] = useState(5);
@@ -25,21 +28,24 @@ export default function DepressionTipsManagement() {
     if (!isAuthenticated()) {
       navigate("/");
     } else {
-      fetchTips();
+      fetchMessages();
     }
   }, [navigate]);
 
   useEffect(() => {
-    const filtered = tips.filter(t =>
-      t && t.title && t.tip &&
-      (t.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       t.tip.toLowerCase().includes(searchTerm.toLowerCase()))
+    const filtered = messages.filter(m =>
+      m && m.firstName && m.lastName && m.email && m.contact && m.message &&
+      (m.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       m.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       m.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       m.contact.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       m.message.toLowerCase().includes(searchTerm.toLowerCase()))
     );
-    setFilteredTips(filtered);
+    setFilteredMessages(filtered);
     setCurrentPage(1);
-  }, [searchTerm, tips]);
+  }, [searchTerm, messages]);
 
-  const fetchTips = async (showRefreshLoader = false) => {
+  const fetchMessages = async (showRefreshLoader = false) => {
     if (showRefreshLoader) {
       setIsRefreshing(true);
     } else {
@@ -47,23 +53,24 @@ export default function DepressionTipsManagement() {
     }
     
     try {
-      const fetchedTips = await getAllDepressionTips();
-      // Validate and filter tips to ensure they have title and tip
-      const validTips = fetchedTips.filter(t => 
-        t && typeof t.title === 'string' && typeof t.tip === 'string'
+      const fetchedMessages = await getAllCrisisMessages();
+      // Validate and filter messages to ensure they have all required fields
+      const validMessages = fetchedMessages.filter(m => 
+        m && typeof m.firstName === 'string' && typeof m.lastName === 'string' && 
+        typeof m.email === 'string' && typeof m.contact === 'string' && typeof m.message === 'string'
       );
-      setTips(validTips);
-      setFilteredTips(validTips);
+      setMessages(validMessages);
+      setFilteredMessages(validMessages);
       
-      if (validTips.length !== fetchedTips.length) {
-        console.warn(`Filtered out ${fetchedTips.length - validTips.length} invalid tips missing title or tip`);
+      if (validMessages.length !== fetchedMessages.length) {
+        console.warn(`Filtered out ${fetchedMessages.length - validMessages.length} invalid messages missing required fields`);
       }
 
       if (showRefreshLoader) {
         Swal.fire({
           icon: 'success',
           title: 'Refreshed!',
-          text: 'Tips refreshed successfully!',
+          text: 'Messages refreshed successfully!',
           position: 'center',
           timer: 2000,
           showConfirmButton: false
@@ -73,7 +80,7 @@ export default function DepressionTipsManagement() {
       Swal.fire({
         icon: 'error',
         title: 'Error!',
-        text: `Failed to fetch tips: ${error.message}`,
+        text: `Failed to fetch messages: ${error.message}`,
         position: 'center',
         confirmButtonColor: '#6366f1'
       });
@@ -88,38 +95,41 @@ export default function DepressionTipsManagement() {
     setIsLoading(true);
 
     try {
-      if (editingTipId) {
-        await updateDepressionTip(editingTipId, { title, tip });
+      if (editingMessageId) {
+        await updateCrisisMessage(editingMessageId, { firstName, lastName, email, contact, message });
         Swal.fire({
           icon: 'success',
           title: 'Updated!',
-          text: 'Tip updated successfully!',
+          text: 'Message updated successfully!',
           position: 'center',
           timer: 2000,
           showConfirmButton: false
         });
-        setEditingTipId(null);
+        setEditingMessageId(null);
       } else {
-        await addDepressionTip({ title, tip });
+        await addCrisisMessage({ firstName, lastName, email, contact, message });
         Swal.fire({
           icon: 'success',
           title: 'Added!',
-          text: 'Tip added successfully!',
+          text: 'Message added successfully!',
           position: 'center',
           timer: 2000,
           showConfirmButton: false
         });
       }
-      setTitle("");
-      setTip("");
+      setFirstName("");
+      setLastName("");
+      setEmail("");
+      setContact("");
+      setMessage("");
       setIsModalOpen(false);
       setCurrentPage(1);
-      fetchTips();
+      fetchMessages();
     } catch (error) {
       Swal.fire({
         icon: 'error',
         title: 'Error!',
-        text: `Failed to ${editingTipId ? 'update' : 'add'} tip: ${error.message}`,
+        text: `Failed to ${editingMessageId ? 'update' : 'add'} message: ${error.message}`,
         position: 'center',
         confirmButtonColor: '#6366f1'
       });
@@ -128,20 +138,23 @@ export default function DepressionTipsManagement() {
     }
   };
 
-  const handleEdit = (t) => {
-    if (!t || !t.title || !t.tip) {
+  const handleEdit = (m) => {
+    if (!m || !m.firstName || !m.lastName || !m.email || !m.contact || !m.message) {
       Swal.fire({
         icon: 'error',
         title: 'Error!',
-        text: 'Cannot edit tip: Missing title or tip',
+        text: 'Cannot edit message: Missing required fields',
         position: 'center',
         confirmButtonColor: '#6366f1'
       });
       return;
     }
-    setEditingTipId(t.id);
-    setTitle(t.title);
-    setTip(t.tip);
+    setEditingMessageId(m.id);
+    setFirstName(m.firstName);
+    setLastName(m.lastName);
+    setEmail(m.email);
+    setContact(m.contact);
+    setMessage(m.message);
     setIsModalOpen(true);
   };
 
@@ -160,22 +173,22 @@ export default function DepressionTipsManagement() {
 
     if (result.isConfirmed) {
       try {
-        await deleteDepressionTip(id);
+        await deleteCrisisMessage(id);
         setCurrentPage(1);
         Swal.fire({
           icon: 'success',
           title: 'Deleted!',
-          text: 'Tip has been deleted successfully!',
+          text: 'Message has been deleted successfully!',
           position: 'center',
           timer: 2000,
           showConfirmButton: false
         });
-        fetchTips();
+        fetchMessages();
       } catch (error) {
         Swal.fire({
           icon: 'error',
           title: 'Error!',
-          text: `Failed to delete tip: ${error.message}`,
+          text: `Failed to delete message: ${error.message}`,
           position: 'center',
           confirmButtonColor: '#6366f1'
         });
@@ -183,38 +196,46 @@ export default function DepressionTipsManagement() {
     }
   };
 
-  const handleView = (t) => {
-    if (!t || !t.title || !t.tip) {
+  const handleView = (m) => {
+    if (!m || !m.firstName || !m.lastName || !m.email || !m.contact || !m.message) {
       Swal.fire({
         icon: 'error',
         title: 'Error!',
-        text: 'Cannot view tip: Missing title or tip',
+        text: 'Cannot view message: Missing required fields',
         position: 'center',
         confirmButtonColor: '#6366f1'
       });
       return;
     }
-    setSelectedTip(t);
+    setSelectedMessage(m);
     setIsViewModalOpen(true);
   };
 
   const openModal = () => {
-    setEditingTipId(null);
-    setTitle("");
-    setTip("");
+    setEditingMessageId(null);
+    setFirstName("");
+    setLastName("");
+    setEmail("");
+    setContact("");
+    setMessage("");
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setEditingTipId(null);
-    setTitle("");
-    setTip("");
+    setEditingMessageId(null);
+    setFirstName("");
+    setLastName("");
+    setEmail("");
+    setContact("");
+    setMessage("");
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return 'Unknown';
-    return new Date(dateString).toLocaleDateString('en-US', {
+  const formatDate = (dateField) => {
+    if (!dateField) return 'Unknown';
+    // Handle Firestore Timestamp
+    const date = dateField.toDate ? dateField.toDate() : new Date(dateField);
+    return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
@@ -222,16 +243,16 @@ export default function DepressionTipsManagement() {
   };
 
   const truncateText = (text, maxLength = 100) => {
-    if (!text || typeof text !== 'string') return 'No tip available';
+    if (!text || typeof text !== 'string') return 'No message available';
     if (text.length <= maxLength) return text;
     return text.substr(0, maxLength) + '...';
   };
 
   // Pagination calculations
-  const totalPages = Math.ceil(filteredTips.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredMessages.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentTips = filteredTips.slice(startIndex, endIndex);
+  const currentMessages = filteredMessages.slice(startIndex, endIndex);
 
   // Generate page numbers for pagination
   const getPageNumbers = () => {
@@ -271,7 +292,7 @@ export default function DepressionTipsManagement() {
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-gray-200 bg-gray-50">
       <div className="flex items-center gap-4">
         <p className="text-sm text-gray-600">
-          Showing {startIndex + 1} to {Math.min(endIndex, filteredTips.length)} of {filteredTips.length} entries
+          Showing {startIndex + 1} to {Math.min(endIndex, filteredMessages.length)} of {filteredMessages.length} entries
         </p>
       </div>
       
@@ -327,59 +348,53 @@ export default function DepressionTipsManagement() {
   const CardView = () => (
     <div className="md:hidden">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
-        {currentTips.map((t, index) => (
-          t && t.title && t.tip ? (
-            <div key={t.id} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+        {currentMessages.map((m, index) => (
+          m && m.firstName && m.lastName && m.email && m.contact && m.message ? (
+            <div key={m.id} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
               <div className="p-6">
-                {/* Tip Header */}
+                {/* Message Header */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-start gap-3 flex-1 min-w-0">
                     <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white flex-shrink-0">
-                      <Lightbulb size={20} />
+                      <MessageSquare size={20} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 truncate text-sm" title={t.title}>
-                        {t.title}
+                      <h3 className="font-semibold text-gray-900 truncate text-sm" title={`${m.firstName} ${m.lastName}`}>
+                        {m.firstName} {m.lastName}
                       </h3>
+                      <p className="text-xs text-gray-500">{m.email}</p>
                     </div>
                   </div>
                   {/* Action Buttons */}
                   <div className="flex gap-1 flex-shrink-0">
                     <button
-                      onClick={() => handleView(t)}
+                      onClick={() => handleView(m)}
                       className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                      title="View tip"
+                      title="View message"
                     >
                       <Eye size={14} />
                     </button>
                     <button
-                      onClick={() => handleEdit(t)}
+                      onClick={() => handleEdit(m)}
                       className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                      title="Edit tip"
+                      title="Edit message"
                     >
                       <Edit size={14} />
                     </button>
                     <button
-                      onClick={() => handleDelete(t.id)}
+                      onClick={() => handleDelete(m.id)}
                       className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      title="Delete tip"
+                      title="Delete message"
                     >
                       <Trash2 size={14} />
                     </button>
                   </div>
                 </div>
-                {/* Tip Content */}
+                {/* Message Content */}
                 <div className="mb-4">
                   <p className="text-sm text-gray-600 leading-relaxed">
-                    {truncateText(t.tip, 120)}
+                    {truncateText(m.message, 120)}
                   </p>
-                </div>
-                {/* Footer */}
-                <div className="pt-4 border-t border-gray-100">
-                  <div className="flex items-center gap-2 text-xs text-gray-500">
-                    <Calendar size={12} />
-                    <span>Created {formatDate(t.createdAt)}</span>
-                  </div>
                 </div>
               </div>
             </div>
@@ -402,16 +417,17 @@ export default function DepressionTipsManagement() {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tip</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Message</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {currentTips.map((t, index) => (
-              t && t.title && t.tip ? (
-                <tr key={t.id} className="hover:bg-gray-50 transition-colors">
+            {currentMessages.map((m, index) => (
+              m && m.firstName && m.lastName && m.email && m.contact && m.message ? (
+                <tr key={m.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="text-sm font-mono text-gray-600 bg-gray-100 px-2 py-1 rounded">
                       {startIndex + index + 1}
@@ -420,48 +436,46 @@ export default function DepressionTipsManagement() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white">
-                        <Lightbulb size={16} />
+                        <MessageSquare size={16} />
                       </div>
                       <div className="max-w-48">
-                        <div className="font-medium text-gray-900 truncate" title={t.title}>
-                          {t.title}
+                        <div className="font-medium text-gray-900 truncate" title={`${m.firstName} ${m.lastName}`}>
+                          {m.firstName} {m.lastName}
                         </div>
                       </div>
                     </div>
                   </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="text-sm text-gray-600">{m.email}</span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="text-sm text-gray-600">{m.contact}</span>
+                  </td>
                   <td className="px-6 py-4">
                     <div className="max-w-xs">
-                      <p className="text-sm text-gray-600 truncate" title={t.tip}>
-                        {truncateText(t.tip, 60)}
+                      <p className="text-sm text-gray-600 truncate" title={m.message}>
+                        {truncateText(m.message, 60)}
                       </p>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-2">
-                      <Calendar size={14} className="text-gray-400" />
-                      <span className="text-sm text-gray-600">
-                        {formatDate(t.createdAt)}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center gap-2">
                       <button
-                        onClick={() => handleView(t)}
+                        onClick={() => handleView(m)}
                         className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                         title="View Details"
                       >
                         <Eye size={16} />
                       </button>
                       <button
-                        onClick={() => handleEdit(t)}
+                        onClick={() => handleEdit(m)}
                         className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
                         title="Edit"
                       >
                         <Edit size={16} />
                       </button>
                       <button
-                        onClick={() => handleDelete(t.id)}
+                        onClick={() => handleDelete(m.id)}
                         className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         title="Delete"
                       >
@@ -486,11 +500,11 @@ export default function DepressionTipsManagement() {
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2 bg-indigo-600 rounded-lg">
-              <Lightbulb className="w-6 h-6 text-white" />
+              <MessageSquare className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900">Depression Tips Management</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Crisis Messages Management</h1>
           </div>
-          <p className="text-gray-600">Manage and organize tips for supporting mental health</p>
+          <p className="text-gray-600">Manage and organize crisis messages</p>
         </div>
 
         {/* Stats Cards */}
@@ -501,8 +515,8 @@ export default function DepressionTipsManagement() {
                 <FileText className="h-6 w-6 text-indigo-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">Total Tips</p>
-                <p className="text-2xl font-bold text-gray-900">{tips.length}</p>
+                <p className="text-sm font-medium text-gray-500">Total Messages</p>
+                <p className="text-2xl font-bold text-gray-900">{messages.length}</p>
               </div>
             </div>
           </div>
@@ -512,8 +526,8 @@ export default function DepressionTipsManagement() {
                 <BookOpen className="h-6 w-6 text-green-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">Filtered Tips</p>
-                <p className="text-2xl font-bold text-gray-900">{filteredTips.length}</p>
+                <p className="text-sm font-medium text-gray-500">Filtered Messages</p>
+                <p className="text-2xl font-bold text-gray-900">{filteredMessages.length}</p>
               </div>
             </div>
           </div>
@@ -526,7 +540,7 @@ export default function DepressionTipsManagement() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Search tips by title or content..."
+                placeholder="Search messages by name, email, contact, or message..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
@@ -534,7 +548,7 @@ export default function DepressionTipsManagement() {
             </div>
             <div className="flex gap-3">
               <button
-                onClick={() => fetchTips(true)}
+                onClick={() => fetchMessages(true)}
                 disabled={isRefreshing}
                 className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2.5 rounded-lg font-medium transition-colors shadow-sm disabled:opacity-50"
               >
@@ -547,7 +561,7 @@ export default function DepressionTipsManagement() {
                 className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white px-4 py-2.5 rounded-lg font-medium transition-colors shadow-sm"
               >
                 <Plus size={20} />
-                Add Tip
+                Add Message
               </button>
             </div>
           </div>
@@ -558,15 +572,15 @@ export default function DepressionTipsManagement() {
           <div className="text-center py-12">
             <div className="inline-flex items-center gap-3">
               <RefreshCw className="w-5 h-5 animate-spin text-indigo-600" />
-              <p className="text-gray-600">Loading tips...</p>
+              <p className="text-gray-600">Loading messages...</p>
             </div>
           </div>
-        ) : filteredTips.length === 0 ? (
+        ) : filteredMessages.length === 0 ? (
           <div className="text-center py-12">
-            <Lightbulb className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No tips found</h3>
+            <MessageSquare className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No messages found</h3>
             <p className="text-gray-600 mb-4">
-              {searchTerm ? 'Try adjusting your search terms.' : 'Get started by adding your first tip.'}
+              {searchTerm ? 'Try adjusting your search terms.' : 'Get started by adding your first message.'}
             </p>
             {!searchTerm && (
               <button
@@ -574,7 +588,7 @@ export default function DepressionTipsManagement() {
                 className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
               >
                 <Plus size={20} />
-                Add First Tip
+                Add First Message
               </button>
             )}
           </div>
@@ -593,10 +607,10 @@ export default function DepressionTipsManagement() {
                 <div className="flex justify-between items-center">
                   <div>
                     <h2 className="text-lg font-bold text-gray-900">
-                      {editingTipId ? "Edit Tip" : "Add New Tip"}
+                      {editingMessageId ? "Edit Message" : "Add New Message"}
                     </h2>
                     <p className="text-sm text-gray-500">
-                      {editingTipId ? "Update tip details" : "Create a new depression tip"}
+                      {editingMessageId ? "Update message details" : "Create a new crisis message"}
                     </p>
                   </div>
                   <button
@@ -610,32 +624,77 @@ export default function DepressionTipsManagement() {
               <form onSubmit={handleSubmit} className="p-6">
                 <div className="space-y-4">
                   <div>
-                    <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-                      Title <span className="text-red-500">*</span>
+                    <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
+                      First Name <span className="text-red-500">*</span>
                     </label>
                     <input
-                      id="title"
-                      name="title"
+                      id="firstName"
+                      name="firstName"
                       type="text"
                       required
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
                       className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-gray-900 placeholder-gray-400"
-                      placeholder="Enter tip title"
+                      placeholder="Enter first name"
                     />
                   </div>
                   <div>
-                    <label htmlFor="tip" className="block text-sm font-medium text-gray-700 mb-1">
-                      Tip <span className="text-red-500">*</span>
+                    <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
+                      Last Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      id="lastName"
+                      name="lastName"
+                      type="text"
+                      required
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-gray-900 placeholder-gray-400"
+                      placeholder="Enter last name"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                      Email <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-gray-900 placeholder-gray-400"
+                      placeholder="Enter email address"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="contact" className="block text-sm font-medium text-gray-700 mb-1">
+                      Contact <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      id="contact"
+                      name="contact"
+                      type="text"
+                      required
+                      value={contact}
+                      onChange={(e) => setContact(e.target.value)}
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-gray-900 placeholder-gray-400"
+                      placeholder="Enter contact number"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
+                      Message <span className="text-red-500">*</span>
                     </label>
                     <textarea
-                      id="tip"
-                      name="tip"
+                      id="message"
+                      name="message"
                       required
-                      value={tip}
-                      onChange={(e) => setTip(e.target.value)}
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
                       className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-gray-900 placeholder-gray-400 resize-none"
-                      placeholder="Share helpful depression tip details..."
+                      placeholder="Enter crisis message..."
                       rows="4"
                     />
                   </div>
@@ -649,10 +708,10 @@ export default function DepressionTipsManagement() {
                     {isLoading ? (
                       <span className="flex items-center justify-center">
                         <RefreshCw className="w-4 h-4 animate-spin mr-2" />
-                        {editingTipId ? 'Updating...' : 'Adding...'}
+                        {editingMessageId ? 'Updating...' : 'Adding...'}
                       </span>
                     ) : (
-                      editingTipId ? "Update Tip" : "Add Tip"
+                      editingMessageId ? "Update Message" : "Add Message"
                     )}
                   </button>
                   <button
@@ -669,18 +728,18 @@ export default function DepressionTipsManagement() {
         )}
 
         {/* View Modal */}
-        {isViewModalOpen && selectedTip && (
+        {isViewModalOpen && selectedMessage && (
           <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-100">
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white">
-                      <Lightbulb size={20} />
+                      <MessageSquare size={20} />
                     </div>
                     <div>
-                      <h2 className="text-xl font-bold text-gray-900">Tip Details</h2>
-                      <p className="text-sm text-gray-500">View complete depression tip information</p>
+                      <h2 className="text-xl font-bold text-gray-900">Message Details</h2>
+                      <p className="text-sm text-gray-500">View complete crisis message information</p>
                     </div>
                   </div>
                   <button
@@ -694,13 +753,21 @@ export default function DepressionTipsManagement() {
               <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-500 mb-2">Title</label>
-                    <h3 className="text-2xl font-bold text-gray-900">{selectedTip.title || 'No title available'}</h3>
+                    <label className="block text-sm font-medium text-gray-500 mb-2">Name</label>
+                    <h3 className="text-2xl font-bold text-gray-900">{selectedMessage.firstName && selectedMessage.lastName ? `${selectedMessage.firstName} ${selectedMessage.lastName}` : 'No name available'}</h3>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-500 mb-2">Tip</label>
+                    <label className="block text-sm font-medium text-gray-500 mb-2">Email</label>
+                    <p className="text-gray-800">{selectedMessage.email || 'No email available'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500 mb-2">Contact</label>
+                    <p className="text-gray-800">{selectedMessage.contact || 'No contact available'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500 mb-2">Message</label>
                     <div className="bg-gray-50 rounded-lg p-4">
-                      <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">{selectedTip.tip || 'No tip available'}</p>
+                      <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">{selectedMessage.message || 'No message available'}</p>
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-200">
@@ -708,14 +775,14 @@ export default function DepressionTipsManagement() {
                       <label className="block text-sm font-medium text-gray-500 mb-1">Created</label>
                       <div className="flex items-center gap-2 text-gray-700">
                         <Calendar size={16} />
-                        <span>{formatDate(selectedTip.createdAt)}</span>
+                        <span>{formatDate(selectedMessage.timestamp)}</span>
                       </div>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-500 mb-1">Last Updated</label>
                       <div className="flex items-center gap-2 text-gray-700">
                         <Calendar size={16} />
-                        <span>{formatDate(selectedTip.updatedAt || selectedTip.createdAt)}</span>
+                        <span>{formatDate(selectedMessage.updatedAt || selectedMessage.timestamp)}</span>
                       </div>
                     </div>
                   </div>
@@ -723,22 +790,22 @@ export default function DepressionTipsManagement() {
                     <button
                       onClick={() => {
                         setIsViewModalOpen(false);
-                        handleEdit(selectedTip);
+                        handleEdit(selectedMessage);
                       }}
                       className="flex-1 flex items-center justify-center gap-2 bg-indigo-600 text-white py-2.5 px-4 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
                     >
                       <Edit size={16} />
-                      Edit Tip
+                      Edit Message
                     </button>
                     <button
                       onClick={() => {
                         setIsViewModalOpen(false);
-                        handleDelete(selectedTip.id);
+                        handleDelete(selectedMessage.id);
                       }}
                       className="flex-1 flex items-center justify-center gap-2 bg-red-600 text-white py-2.5 px-4 rounded-lg font-medium hover:bg-red-700 transition-colors"
                     >
                       <Trash2 size={16} />
-                      Delete Tip
+                      Delete Message
                     </button>
                   </div>
                 </div>

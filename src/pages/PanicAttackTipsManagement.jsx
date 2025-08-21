@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Plus, Edit, Trash2, X, ChevronLeft, ChevronRight, BookOpen, FileText, Search, RefreshCw, Eye, Calendar, Lightbulb } from "lucide-react";
-import { addDepressionTip, getAllDepressionTips, updateDepressionTip, deleteDepressionTip } from "../services/depressionTipsService";
+import { Plus, Edit, Trash2, X, ChevronLeft, ChevronRight, BookOpen, FileText, Search, RefreshCw, Lightbulb, Eye,Calendar } from "lucide-react";
+import { addPanicAttackTip, getAllPanicAttackTips, updatePanicAttackTip, deletePanicAttackTip } from "../services/panicAttackTipsService";
 import { isAuthenticated } from "../services/authService";
 import { useNavigate } from "react-router-dom";
 import Swal from 'sweetalert2';
 
-export default function DepressionTipsManagement() {
+export default function PanicAttackTipsManagement() {
   const [tips, setTips] = useState([]);
   const [filteredTips, setFilteredTips] = useState([]);
   const [title, setTitle] = useState("");
-  const [tip, setTip] = useState("");
+  const [description, setDescription] = useState("");
+  const [order, setOrder] = useState("");
   const [editingTipId, setEditingTipId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -31,9 +32,9 @@ export default function DepressionTipsManagement() {
 
   useEffect(() => {
     const filtered = tips.filter(t =>
-      t && t.title && t.tip &&
+      t && t.title && t.description &&
       (t.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       t.tip.toLowerCase().includes(searchTerm.toLowerCase()))
+       t.description.toLowerCase().includes(searchTerm.toLowerCase()))
     );
     setFilteredTips(filtered);
     setCurrentPage(1);
@@ -47,16 +48,16 @@ export default function DepressionTipsManagement() {
     }
     
     try {
-      const fetchedTips = await getAllDepressionTips();
-      // Validate and filter tips to ensure they have title and tip
+      const fetchedTips = await getAllPanicAttackTips();
+      // Validate and filter tips to ensure they have title, description, and order
       const validTips = fetchedTips.filter(t => 
-        t && typeof t.title === 'string' && typeof t.tip === 'string'
+        t && typeof t.title === 'string' && typeof t.description === 'string' && t.order !== undefined
       );
       setTips(validTips);
       setFilteredTips(validTips);
       
       if (validTips.length !== fetchedTips.length) {
-        console.warn(`Filtered out ${fetchedTips.length - validTips.length} invalid tips missing title or tip`);
+        console.warn(`Filtered out ${fetchedTips.length - validTips.length} invalid tips missing title, description, or order`);
       }
 
       if (showRefreshLoader) {
@@ -88,8 +89,13 @@ export default function DepressionTipsManagement() {
     setIsLoading(true);
 
     try {
+      const orderValue = parseInt(order);
+      if (isNaN(orderValue)) {
+        throw new Error("Order must be a valid number");
+      }
+
       if (editingTipId) {
-        await updateDepressionTip(editingTipId, { title, tip });
+        await updatePanicAttackTip(editingTipId, { title, description, order: orderValue });
         Swal.fire({
           icon: 'success',
           title: 'Updated!',
@@ -100,7 +106,7 @@ export default function DepressionTipsManagement() {
         });
         setEditingTipId(null);
       } else {
-        await addDepressionTip({ title, tip });
+        await addPanicAttackTip({ title, description, order: orderValue });
         Swal.fire({
           icon: 'success',
           title: 'Added!',
@@ -111,7 +117,8 @@ export default function DepressionTipsManagement() {
         });
       }
       setTitle("");
-      setTip("");
+      setDescription("");
+      setOrder("");
       setIsModalOpen(false);
       setCurrentPage(1);
       fetchTips();
@@ -129,11 +136,11 @@ export default function DepressionTipsManagement() {
   };
 
   const handleEdit = (t) => {
-    if (!t || !t.title || !t.tip) {
+    if (!t || !t.title || !t.description || t.order === undefined) {
       Swal.fire({
         icon: 'error',
         title: 'Error!',
-        text: 'Cannot edit tip: Missing title or tip',
+        text: 'Cannot edit tip: Missing title, description, or order',
         position: 'center',
         confirmButtonColor: '#6366f1'
       });
@@ -141,7 +148,8 @@ export default function DepressionTipsManagement() {
     }
     setEditingTipId(t.id);
     setTitle(t.title);
-    setTip(t.tip);
+    setDescription(t.description);
+    setOrder(t.order.toString());
     setIsModalOpen(true);
   };
 
@@ -160,7 +168,7 @@ export default function DepressionTipsManagement() {
 
     if (result.isConfirmed) {
       try {
-        await deleteDepressionTip(id);
+        await deletePanicAttackTip(id);
         setCurrentPage(1);
         Swal.fire({
           icon: 'success',
@@ -184,11 +192,11 @@ export default function DepressionTipsManagement() {
   };
 
   const handleView = (t) => {
-    if (!t || !t.title || !t.tip) {
+    if (!t || !t.title || !t.description || t.order === undefined) {
       Swal.fire({
         icon: 'error',
         title: 'Error!',
-        text: 'Cannot view tip: Missing title or tip',
+        text: 'Cannot view tip: Missing title, description, or order',
         position: 'center',
         confirmButtonColor: '#6366f1'
       });
@@ -201,7 +209,8 @@ export default function DepressionTipsManagement() {
   const openModal = () => {
     setEditingTipId(null);
     setTitle("");
-    setTip("");
+    setDescription("");
+    setOrder("");
     setIsModalOpen(true);
   };
 
@@ -209,7 +218,8 @@ export default function DepressionTipsManagement() {
     setIsModalOpen(false);
     setEditingTipId(null);
     setTitle("");
-    setTip("");
+    setDescription("");
+    setOrder("");
   };
 
   const formatDate = (dateString) => {
@@ -222,7 +232,7 @@ export default function DepressionTipsManagement() {
   };
 
   const truncateText = (text, maxLength = 100) => {
-    if (!text || typeof text !== 'string') return 'No tip available';
+    if (!text || typeof text !== 'string') return 'No description available';
     if (text.length <= maxLength) return text;
     return text.substr(0, maxLength) + '...';
   };
@@ -328,7 +338,7 @@ export default function DepressionTipsManagement() {
     <div className="md:hidden">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
         {currentTips.map((t, index) => (
-          t && t.title && t.tip ? (
+          t && t.title && t.description && t.order !== undefined ? (
             <div key={t.id} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
               <div className="p-6">
                 {/* Tip Header */}
@@ -341,6 +351,7 @@ export default function DepressionTipsManagement() {
                       <h3 className="font-semibold text-gray-900 truncate text-sm" title={t.title}>
                         {t.title}
                       </h3>
+                      <p className="text-xs text-gray-500">Order: {t.order}</p>
                     </div>
                   </div>
                   {/* Action Buttons */}
@@ -368,18 +379,11 @@ export default function DepressionTipsManagement() {
                     </button>
                   </div>
                 </div>
-                {/* Tip Content */}
+                {/* Tip Description */}
                 <div className="mb-4">
                   <p className="text-sm text-gray-600 leading-relaxed">
-                    {truncateText(t.tip, 120)}
+                    {truncateText(t.description, 120)}
                   </p>
-                </div>
-                {/* Footer */}
-                <div className="pt-4 border-t border-gray-100">
-                  <div className="flex items-center gap-2 text-xs text-gray-500">
-                    <Calendar size={12} />
-                    <span>Created {formatDate(t.createdAt)}</span>
-                  </div>
                 </div>
               </div>
             </div>
@@ -403,14 +407,14 @@ export default function DepressionTipsManagement() {
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tip</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {currentTips.map((t, index) => (
-              t && t.title && t.tip ? (
+              t && t.title && t.description && t.order !== undefined ? (
                 <tr key={t.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="text-sm font-mono text-gray-600 bg-gray-100 px-2 py-1 rounded">
@@ -429,19 +433,14 @@ export default function DepressionTipsManagement() {
                       </div>
                     </div>
                   </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="text-sm text-gray-600">{t.order}</span>
+                  </td>
                   <td className="px-6 py-4">
                     <div className="max-w-xs">
-                      <p className="text-sm text-gray-600 truncate" title={t.tip}>
-                        {truncateText(t.tip, 60)}
+                      <p className="text-sm text-gray-600 truncate" title={t.description}>
+                        {truncateText(t.description, 60)}
                       </p>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center gap-2">
-                      <Calendar size={14} className="text-gray-400" />
-                      <span className="text-sm text-gray-600">
-                        {formatDate(t.createdAt)}
-                      </span>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -488,9 +487,9 @@ export default function DepressionTipsManagement() {
             <div className="p-2 bg-indigo-600 rounded-lg">
               <Lightbulb className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900">Depression Tips Management</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Panic Attack Tips Management</h1>
           </div>
-          <p className="text-gray-600">Manage and organize tips for supporting mental health</p>
+          <p className="text-gray-600">Manage and organize tips for coping with panic attacks</p>
         </div>
 
         {/* Stats Cards */}
@@ -526,7 +525,7 @@ export default function DepressionTipsManagement() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Search tips by title or content..."
+                placeholder="Search tips by title or description..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
@@ -596,7 +595,7 @@ export default function DepressionTipsManagement() {
                       {editingTipId ? "Edit Tip" : "Add New Tip"}
                     </h2>
                     <p className="text-sm text-gray-500">
-                      {editingTipId ? "Update tip details" : "Create a new depression tip"}
+                      {editingTipId ? "Update tip details" : "Create a new panic attack tip"}
                     </p>
                   </div>
                   <button
@@ -625,17 +624,32 @@ export default function DepressionTipsManagement() {
                     />
                   </div>
                   <div>
-                    <label htmlFor="tip" className="block text-sm font-medium text-gray-700 mb-1">
-                      Tip <span className="text-red-500">*</span>
+                    <label htmlFor="order" className="block text-sm font-medium text-gray-700 mb-1">
+                      Order <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      id="order"
+                      name="order"
+                      type="number"
+                      required
+                      value={order}
+                      onChange={(e) => setOrder(e.target.value)}
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-gray-900 placeholder-gray-400"
+                      placeholder="Enter tip order (e.g., 1, 2, 3)"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+                      Description <span className="text-red-500">*</span>
                     </label>
                     <textarea
-                      id="tip"
-                      name="tip"
+                      id="description"
+                      name="description"
                       required
-                      value={tip}
-                      onChange={(e) => setTip(e.target.value)}
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
                       className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-gray-900 placeholder-gray-400 resize-none"
-                      placeholder="Share helpful depression tip details..."
+                      placeholder="Share helpful panic attack tip details..."
                       rows="4"
                     />
                   </div>
@@ -680,7 +694,7 @@ export default function DepressionTipsManagement() {
                     </div>
                     <div>
                       <h2 className="text-xl font-bold text-gray-900">Tip Details</h2>
-                      <p className="text-sm text-gray-500">View complete depression tip information</p>
+                      <p className="text-sm text-gray-500">View complete panic attack tip information</p>
                     </div>
                   </div>
                   <button
@@ -698,9 +712,13 @@ export default function DepressionTipsManagement() {
                     <h3 className="text-2xl font-bold text-gray-900">{selectedTip.title || 'No title available'}</h3>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-500 mb-2">Tip</label>
+                    <label className="block text-sm font-medium text-gray-500 mb-2">Order</label>
+                    <p className="text-gray-800">{selectedTip.order !== undefined ? selectedTip.order : 'No order available'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500 mb-2">Description</label>
                     <div className="bg-gray-50 rounded-lg p-4">
-                      <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">{selectedTip.tip || 'No tip available'}</p>
+                      <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">{selectedTip.description || 'No description available'}</p>
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-200">

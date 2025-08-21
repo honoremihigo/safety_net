@@ -1,21 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { Plus, Edit, Trash2, X, ChevronLeft, ChevronRight, BookOpen, FileText, Search, RefreshCw, Eye, Calendar, Lightbulb } from "lucide-react";
-import { addDepressionTip, getAllDepressionTips, updateDepressionTip, deleteDepressionTip } from "../services/depressionTipsService";
+import { Plus, Edit, Trash2, X, ChevronLeft, ChevronRight, BookOpen, FileText, Search, RefreshCw, AlertTriangle, Eye,Calendar } from "lucide-react";
+import { addEmergencyAction, getAllEmergencyActions, updateEmergencyAction, deleteEmergencyAction } from "../services/emergencyActionsService";
 import { isAuthenticated } from "../services/authService";
 import { useNavigate } from "react-router-dom";
 import Swal from 'sweetalert2';
 
-export default function DepressionTipsManagement() {
-  const [tips, setTips] = useState([]);
-  const [filteredTips, setFilteredTips] = useState([]);
-  const [title, setTitle] = useState("");
-  const [tip, setTip] = useState("");
-  const [editingTipId, setEditingTipId] = useState(null);
+export default function EmergencyActionsManagement() {
+  const [actions, setActions] = useState([]);
+  const [filteredActions, setFilteredActions] = useState([]);
+  const [action, setAction] = useState("");
+  const [contact, setContact] = useState("");
+  const [userId, setUserId] = useState("");
+  const [editingActionId, setEditingActionId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [selectedTip, setSelectedTip] = useState(null);
+  const [selectedAction, setSelectedAction] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [itemsPerPage] = useState(5);
@@ -25,21 +26,22 @@ export default function DepressionTipsManagement() {
     if (!isAuthenticated()) {
       navigate("/");
     } else {
-      fetchTips();
+      fetchActions();
     }
   }, [navigate]);
 
   useEffect(() => {
-    const filtered = tips.filter(t =>
-      t && t.title && t.tip &&
-      (t.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       t.tip.toLowerCase().includes(searchTerm.toLowerCase()))
+    const filtered = actions.filter(a =>
+      a && a.action && a.contact && a.userId &&
+      (a.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       a.contact.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       a.userId.toLowerCase().includes(searchTerm.toLowerCase()))
     );
-    setFilteredTips(filtered);
+    setFilteredActions(filtered);
     setCurrentPage(1);
-  }, [searchTerm, tips]);
+  }, [searchTerm, actions]);
 
-  const fetchTips = async (showRefreshLoader = false) => {
+  const fetchActions = async (showRefreshLoader = false) => {
     if (showRefreshLoader) {
       setIsRefreshing(true);
     } else {
@@ -47,23 +49,23 @@ export default function DepressionTipsManagement() {
     }
     
     try {
-      const fetchedTips = await getAllDepressionTips();
-      // Validate and filter tips to ensure they have title and tip
-      const validTips = fetchedTips.filter(t => 
-        t && typeof t.title === 'string' && typeof t.tip === 'string'
+      const fetchedActions = await getAllEmergencyActions();
+      // Validate and filter actions to ensure they have action, contact, and userId
+      const validActions = fetchedActions.filter(a => 
+        a && typeof a.action === 'string' && typeof a.contact === 'string' && typeof a.userId === 'string'
       );
-      setTips(validTips);
-      setFilteredTips(validTips);
+      setActions(validActions);
+      setFilteredActions(validActions);
       
-      if (validTips.length !== fetchedTips.length) {
-        console.warn(`Filtered out ${fetchedTips.length - validTips.length} invalid tips missing title or tip`);
+      if (validActions.length !== fetchedActions.length) {
+        console.warn(`Filtered out ${fetchedActions.length - validActions.length} invalid actions missing required fields`);
       }
 
       if (showRefreshLoader) {
         Swal.fire({
           icon: 'success',
           title: 'Refreshed!',
-          text: 'Tips refreshed successfully!',
+          text: 'Actions refreshed successfully!',
           position: 'center',
           timer: 2000,
           showConfirmButton: false
@@ -73,7 +75,7 @@ export default function DepressionTipsManagement() {
       Swal.fire({
         icon: 'error',
         title: 'Error!',
-        text: `Failed to fetch tips: ${error.message}`,
+        text: `Failed to fetch actions: ${error.message}`,
         position: 'center',
         confirmButtonColor: '#6366f1'
       });
@@ -88,38 +90,39 @@ export default function DepressionTipsManagement() {
     setIsLoading(true);
 
     try {
-      if (editingTipId) {
-        await updateDepressionTip(editingTipId, { title, tip });
+      if (editingActionId) {
+        await updateEmergencyAction(editingActionId, { action, contact, userId });
         Swal.fire({
           icon: 'success',
           title: 'Updated!',
-          text: 'Tip updated successfully!',
+          text: 'Action updated successfully!',
           position: 'center',
           timer: 2000,
           showConfirmButton: false
         });
-        setEditingTipId(null);
+        setEditingActionId(null);
       } else {
-        await addDepressionTip({ title, tip });
+        await addEmergencyAction({ action, contact, userId });
         Swal.fire({
           icon: 'success',
           title: 'Added!',
-          text: 'Tip added successfully!',
+          text: 'Action added successfully!',
           position: 'center',
           timer: 2000,
           showConfirmButton: false
         });
       }
-      setTitle("");
-      setTip("");
+      setAction("");
+      setContact("");
+      setUserId("");
       setIsModalOpen(false);
       setCurrentPage(1);
-      fetchTips();
+      fetchActions();
     } catch (error) {
       Swal.fire({
         icon: 'error',
         title: 'Error!',
-        text: `Failed to ${editingTipId ? 'update' : 'add'} tip: ${error.message}`,
+        text: `Failed to ${editingActionId ? 'update' : 'add'} action: ${error.message}`,
         position: 'center',
         confirmButtonColor: '#6366f1'
       });
@@ -128,20 +131,21 @@ export default function DepressionTipsManagement() {
     }
   };
 
-  const handleEdit = (t) => {
-    if (!t || !t.title || !t.tip) {
+  const handleEdit = (a) => {
+    if (!a || !a.action || !a.contact || !a.userId) {
       Swal.fire({
         icon: 'error',
         title: 'Error!',
-        text: 'Cannot edit tip: Missing title or tip',
+        text: 'Cannot edit action: Missing required fields',
         position: 'center',
         confirmButtonColor: '#6366f1'
       });
       return;
     }
-    setEditingTipId(t.id);
-    setTitle(t.title);
-    setTip(t.tip);
+    setEditingActionId(a.id);
+    setAction(a.action);
+    setContact(a.contact);
+    setUserId(a.userId);
     setIsModalOpen(true);
   };
 
@@ -160,22 +164,22 @@ export default function DepressionTipsManagement() {
 
     if (result.isConfirmed) {
       try {
-        await deleteDepressionTip(id);
+        await deleteEmergencyAction(id);
         setCurrentPage(1);
         Swal.fire({
           icon: 'success',
           title: 'Deleted!',
-          text: 'Tip has been deleted successfully!',
+          text: 'Action has been deleted successfully!',
           position: 'center',
           timer: 2000,
           showConfirmButton: false
         });
-        fetchTips();
+        fetchActions();
       } catch (error) {
         Swal.fire({
           icon: 'error',
           title: 'Error!',
-          text: `Failed to delete tip: ${error.message}`,
+          text: `Failed to delete action: ${error.message}`,
           position: 'center',
           confirmButtonColor: '#6366f1'
         });
@@ -183,38 +187,42 @@ export default function DepressionTipsManagement() {
     }
   };
 
-  const handleView = (t) => {
-    if (!t || !t.title || !t.tip) {
+  const handleView = (a) => {
+    if (!a || !a.action || !a.contact || !a.userId) {
       Swal.fire({
         icon: 'error',
         title: 'Error!',
-        text: 'Cannot view tip: Missing title or tip',
+        text: 'Cannot view action: Missing required fields',
         position: 'center',
         confirmButtonColor: '#6366f1'
       });
       return;
     }
-    setSelectedTip(t);
+    setSelectedAction(a);
     setIsViewModalOpen(true);
   };
 
   const openModal = () => {
-    setEditingTipId(null);
-    setTitle("");
-    setTip("");
+    setEditingActionId(null);
+    setAction("");
+    setContact("");
+    setUserId("");
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setEditingTipId(null);
-    setTitle("");
-    setTip("");
+    setEditingActionId(null);
+    setAction("");
+    setContact("");
+    setUserId("");
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return 'Unknown';
-    return new Date(dateString).toLocaleDateString('en-US', {
+  const formatDate = (dateField) => {
+    if (!dateField) return 'Unknown';
+    // Handle Firestore Timestamp
+    const date = dateField.toDate ? dateField.toDate() : new Date(dateField);
+    return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
@@ -222,16 +230,16 @@ export default function DepressionTipsManagement() {
   };
 
   const truncateText = (text, maxLength = 100) => {
-    if (!text || typeof text !== 'string') return 'No tip available';
+    if (!text || typeof text !== 'string') return 'No action available';
     if (text.length <= maxLength) return text;
     return text.substr(0, maxLength) + '...';
   };
 
   // Pagination calculations
-  const totalPages = Math.ceil(filteredTips.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredActions.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentTips = filteredTips.slice(startIndex, endIndex);
+  const currentActions = filteredActions.slice(startIndex, endIndex);
 
   // Generate page numbers for pagination
   const getPageNumbers = () => {
@@ -271,7 +279,7 @@ export default function DepressionTipsManagement() {
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-gray-200 bg-gray-50">
       <div className="flex items-center gap-4">
         <p className="text-sm text-gray-600">
-          Showing {startIndex + 1} to {Math.min(endIndex, filteredTips.length)} of {filteredTips.length} entries
+          Showing {startIndex + 1} to {Math.min(endIndex, filteredActions.length)} of {filteredActions.length} entries
         </p>
       </div>
       
@@ -327,59 +335,53 @@ export default function DepressionTipsManagement() {
   const CardView = () => (
     <div className="md:hidden">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
-        {currentTips.map((t, index) => (
-          t && t.title && t.tip ? (
-            <div key={t.id} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+        {currentActions.map((a, index) => (
+          a && a.action && a.contact && a.userId ? (
+            <div key={a.id} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
               <div className="p-6">
-                {/* Tip Header */}
+                {/* Action Header */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-start gap-3 flex-1 min-w-0">
                     <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white flex-shrink-0">
-                      <Lightbulb size={20} />
+                      <AlertTriangle size={20} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 truncate text-sm" title={t.title}>
-                        {t.title}
+                      <h3 className="font-semibold text-gray-900 truncate text-sm" title={a.action}>
+                        {a.action}
                       </h3>
+                      <p className="text-xs text-gray-500">{a.contact}</p>
                     </div>
                   </div>
                   {/* Action Buttons */}
                   <div className="flex gap-1 flex-shrink-0">
                     <button
-                      onClick={() => handleView(t)}
+                      onClick={() => handleView(a)}
                       className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                      title="View tip"
+                      title="View action"
                     >
                       <Eye size={14} />
                     </button>
                     <button
-                      onClick={() => handleEdit(t)}
+                      onClick={() => handleEdit(a)}
                       className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                      title="Edit tip"
+                      title="Edit action"
                     >
                       <Edit size={14} />
                     </button>
                     <button
-                      onClick={() => handleDelete(t.id)}
+                      onClick={() => handleDelete(a.id)}
                       className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      title="Delete tip"
+                      title="Delete action"
                     >
                       <Trash2 size={14} />
                     </button>
                   </div>
                 </div>
-                {/* Tip Content */}
+                {/* Action User ID */}
                 <div className="mb-4">
                   <p className="text-sm text-gray-600 leading-relaxed">
-                    {truncateText(t.tip, 120)}
+                    User ID: {truncateText(a.userId, 120)}
                   </p>
-                </div>
-                {/* Footer */}
-                <div className="pt-4 border-t border-gray-100">
-                  <div className="flex items-center gap-2 text-xs text-gray-500">
-                    <Calendar size={12} />
-                    <span>Created {formatDate(t.createdAt)}</span>
-                  </div>
                 </div>
               </div>
             </div>
@@ -402,16 +404,16 @@ export default function DepressionTipsManagement() {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tip</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User ID</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {currentTips.map((t, index) => (
-              t && t.title && t.tip ? (
-                <tr key={t.id} className="hover:bg-gray-50 transition-colors">
+            {currentActions.map((a, index) => (
+              a && a.action && a.contact && a.userId ? (
+                <tr key={a.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="text-sm font-mono text-gray-600 bg-gray-100 px-2 py-1 rounded">
                       {startIndex + index + 1}
@@ -420,48 +422,43 @@ export default function DepressionTipsManagement() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white">
-                        <Lightbulb size={16} />
+                        <AlertTriangle size={16} />
                       </div>
                       <div className="max-w-48">
-                        <div className="font-medium text-gray-900 truncate" title={t.title}>
-                          {t.title}
+                        <div className="font-medium text-gray-900 truncate" title={a.action}>
+                          {a.action}
                         </div>
                       </div>
                     </div>
                   </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="text-sm text-gray-600">{a.contact}</span>
+                  </td>
                   <td className="px-6 py-4">
                     <div className="max-w-xs">
-                      <p className="text-sm text-gray-600 truncate" title={t.tip}>
-                        {truncateText(t.tip, 60)}
+                      <p className="text-sm text-gray-600 truncate" title={a.userId}>
+                        {truncateText(a.userId, 60)}
                       </p>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-2">
-                      <Calendar size={14} className="text-gray-400" />
-                      <span className="text-sm text-gray-600">
-                        {formatDate(t.createdAt)}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center gap-2">
                       <button
-                        onClick={() => handleView(t)}
+                        onClick={() => handleView(a)}
                         className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                         title="View Details"
                       >
                         <Eye size={16} />
                       </button>
                       <button
-                        onClick={() => handleEdit(t)}
+                        onClick={() => handleEdit(a)}
                         className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
                         title="Edit"
                       >
                         <Edit size={16} />
                       </button>
                       <button
-                        onClick={() => handleDelete(t.id)}
+                        onClick={() => handleDelete(a.id)}
                         className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         title="Delete"
                       >
@@ -486,11 +483,11 @@ export default function DepressionTipsManagement() {
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2 bg-indigo-600 rounded-lg">
-              <Lightbulb className="w-6 h-6 text-white" />
+              <AlertTriangle className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900">Depression Tips Management</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Emergency Actions Management</h1>
           </div>
-          <p className="text-gray-600">Manage and organize tips for supporting mental health</p>
+          <p className="text-gray-600">Manage and organize emergency actions</p>
         </div>
 
         {/* Stats Cards */}
@@ -501,8 +498,8 @@ export default function DepressionTipsManagement() {
                 <FileText className="h-6 w-6 text-indigo-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">Total Tips</p>
-                <p className="text-2xl font-bold text-gray-900">{tips.length}</p>
+                <p className="text-sm font-medium text-gray-500">Total Actions</p>
+                <p className="text-2xl font-bold text-gray-900">{actions.length}</p>
               </div>
             </div>
           </div>
@@ -512,8 +509,8 @@ export default function DepressionTipsManagement() {
                 <BookOpen className="h-6 w-6 text-green-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">Filtered Tips</p>
-                <p className="text-2xl font-bold text-gray-900">{filteredTips.length}</p>
+                <p className="text-sm font-medium text-gray-500">Filtered Actions</p>
+                <p className="text-2xl font-bold text-gray-900">{filteredActions.length}</p>
               </div>
             </div>
           </div>
@@ -526,7 +523,7 @@ export default function DepressionTipsManagement() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Search tips by title or content..."
+                placeholder="Search actions by action, contact, or user ID..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
@@ -534,7 +531,7 @@ export default function DepressionTipsManagement() {
             </div>
             <div className="flex gap-3">
               <button
-                onClick={() => fetchTips(true)}
+                onClick={() => fetchActions(true)}
                 disabled={isRefreshing}
                 className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2.5 rounded-lg font-medium transition-colors shadow-sm disabled:opacity-50"
               >
@@ -547,7 +544,7 @@ export default function DepressionTipsManagement() {
                 className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white px-4 py-2.5 rounded-lg font-medium transition-colors shadow-sm"
               >
                 <Plus size={20} />
-                Add Tip
+                Add Action
               </button>
             </div>
           </div>
@@ -558,15 +555,15 @@ export default function DepressionTipsManagement() {
           <div className="text-center py-12">
             <div className="inline-flex items-center gap-3">
               <RefreshCw className="w-5 h-5 animate-spin text-indigo-600" />
-              <p className="text-gray-600">Loading tips...</p>
+              <p className="text-gray-600">Loading actions...</p>
             </div>
           </div>
-        ) : filteredTips.length === 0 ? (
+        ) : filteredActions.length === 0 ? (
           <div className="text-center py-12">
-            <Lightbulb className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No tips found</h3>
+            <AlertTriangle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No actions found</h3>
             <p className="text-gray-600 mb-4">
-              {searchTerm ? 'Try adjusting your search terms.' : 'Get started by adding your first tip.'}
+              {searchTerm ? 'Try adjusting your search terms.' : 'Get started by adding your first action.'}
             </p>
             {!searchTerm && (
               <button
@@ -574,7 +571,7 @@ export default function DepressionTipsManagement() {
                 className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
               >
                 <Plus size={20} />
-                Add First Tip
+                Add First Action
               </button>
             )}
           </div>
@@ -593,10 +590,10 @@ export default function DepressionTipsManagement() {
                 <div className="flex justify-between items-center">
                   <div>
                     <h2 className="text-lg font-bold text-gray-900">
-                      {editingTipId ? "Edit Tip" : "Add New Tip"}
+                      {editingActionId ? "Edit Action" : "Add New Action"}
                     </h2>
                     <p className="text-sm text-gray-500">
-                      {editingTipId ? "Update tip details" : "Create a new depression tip"}
+                      {editingActionId ? "Update action details" : "Create a new emergency action"}
                     </p>
                   </div>
                   <button
@@ -610,33 +607,48 @@ export default function DepressionTipsManagement() {
               <form onSubmit={handleSubmit} className="p-6">
                 <div className="space-y-4">
                   <div>
-                    <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-                      Title <span className="text-red-500">*</span>
+                    <label htmlFor="action" className="block text-sm font-medium text-gray-700 mb-1">
+                      Action <span className="text-red-500">*</span>
                     </label>
                     <input
-                      id="title"
-                      name="title"
+                      id="action"
+                      name="action"
                       type="text"
                       required
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
+                      value={action}
+                      onChange={(e) => setAction(e.target.value)}
                       className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-gray-900 placeholder-gray-400"
-                      placeholder="Enter tip title"
+                      placeholder="Enter emergency action"
                     />
                   </div>
                   <div>
-                    <label htmlFor="tip" className="block text-sm font-medium text-gray-700 mb-1">
-                      Tip <span className="text-red-500">*</span>
+                    <label htmlFor="contact" className="block text-sm font-medium text-gray-700 mb-1">
+                      Contact <span className="text-red-500">*</span>
                     </label>
-                    <textarea
-                      id="tip"
-                      name="tip"
+                    <input
+                      id="contact"
+                      name="contact"
+                      type="text"
                       required
-                      value={tip}
-                      onChange={(e) => setTip(e.target.value)}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-gray-900 placeholder-gray-400 resize-none"
-                      placeholder="Share helpful depression tip details..."
-                      rows="4"
+                      value={contact}
+                      onChange={(e) => setContact(e.target.value)}
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-gray-900 placeholder-gray-400"
+                      placeholder="Enter contact information"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="userId" className="block text-sm font-medium text-gray-700 mb-1">
+                      User ID <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      id="userId"
+                      name="userId"
+                      type="text"
+                      required
+                      value={userId}
+                      onChange={(e) => setUserId(e.target.value)}
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-gray-900 placeholder-gray-400"
+                      placeholder="Enter user ID"
                     />
                   </div>
                 </div>
@@ -649,10 +661,10 @@ export default function DepressionTipsManagement() {
                     {isLoading ? (
                       <span className="flex items-center justify-center">
                         <RefreshCw className="w-4 h-4 animate-spin mr-2" />
-                        {editingTipId ? 'Updating...' : 'Adding...'}
+                        {editingActionId ? 'Updating...' : 'Adding...'}
                       </span>
                     ) : (
-                      editingTipId ? "Update Tip" : "Add Tip"
+                      editingActionId ? "Update Action" : "Add Action"
                     )}
                   </button>
                   <button
@@ -669,18 +681,18 @@ export default function DepressionTipsManagement() {
         )}
 
         {/* View Modal */}
-        {isViewModalOpen && selectedTip && (
+        {isViewModalOpen && selectedAction && (
           <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-100">
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white">
-                      <Lightbulb size={20} />
+                      <AlertTriangle size={20} />
                     </div>
                     <div>
-                      <h2 className="text-xl font-bold text-gray-900">Tip Details</h2>
-                      <p className="text-sm text-gray-500">View complete depression tip information</p>
+                      <h2 className="text-xl font-bold text-gray-900">Action Details</h2>
+                      <p className="text-sm text-gray-500">View complete emergency action information</p>
                     </div>
                   </div>
                   <button
@@ -694,28 +706,30 @@ export default function DepressionTipsManagement() {
               <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-500 mb-2">Title</label>
-                    <h3 className="text-2xl font-bold text-gray-900">{selectedTip.title || 'No title available'}</h3>
+                    <label className="block text-sm font-medium text-gray-500 mb-2">Action</label>
+                    <h3 className="text-2xl font-bold text-gray-900">{selectedAction.action || 'No action available'}</h3>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-500 mb-2">Tip</label>
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">{selectedTip.tip || 'No tip available'}</p>
-                    </div>
+                    <label className="block text-sm font-medium text-gray-500 mb-2">Contact</label>
+                    <p className="text-gray-800">{selectedAction.contact || 'No contact available'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500 mb-2">User ID</label>
+                    <p className="text-gray-800">{selectedAction.userId || 'No user ID available'}</p>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-200">
                     <div>
                       <label className="block text-sm font-medium text-gray-500 mb-1">Created</label>
                       <div className="flex items-center gap-2 text-gray-700">
                         <Calendar size={16} />
-                        <span>{formatDate(selectedTip.createdAt)}</span>
+                        <span>{formatDate(selectedAction.timestamp)}</span>
                       </div>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-500 mb-1">Last Updated</label>
                       <div className="flex items-center gap-2 text-gray-700">
                         <Calendar size={16} />
-                        <span>{formatDate(selectedTip.updatedAt || selectedTip.createdAt)}</span>
+                        <span>{formatDate(selectedAction.updatedAt || selectedAction.timestamp)}</span>
                       </div>
                     </div>
                   </div>
@@ -723,22 +737,22 @@ export default function DepressionTipsManagement() {
                     <button
                       onClick={() => {
                         setIsViewModalOpen(false);
-                        handleEdit(selectedTip);
+                        handleEdit(selectedAction);
                       }}
                       className="flex-1 flex items-center justify-center gap-2 bg-indigo-600 text-white py-2.5 px-4 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
                     >
                       <Edit size={16} />
-                      Edit Tip
+                      Edit Action
                     </button>
                     <button
                       onClick={() => {
                         setIsViewModalOpen(false);
-                        handleDelete(selectedTip.id);
+                        handleDelete(selectedAction.id);
                       }}
                       className="flex-1 flex items-center justify-center gap-2 bg-red-600 text-white py-2.5 px-4 rounded-lg font-medium hover:bg-red-700 transition-colors"
                     >
                       <Trash2 size={16} />
-                      Delete Tip
+                      Delete Action
                     </button>
                   </div>
                 </div>
