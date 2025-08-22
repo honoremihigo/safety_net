@@ -349,7 +349,7 @@ export default function TestimonialsManagement() {
   );
 
   return (
-    <div className="bg-gray-50 p-4 h-[90vh] sm:p-6 lg:p-8">
+    <div className="bg-gray-50 p-4  sm:p-6 lg:p-8">
       <div className="h-full overflow-y-auto mx-auto">
         {/* Header Section */}
         <div className="mb-8">
@@ -440,7 +440,7 @@ export default function TestimonialsManagement() {
         {/* View Modal */}
         {isViewModalOpen && selectedTestimonial && (
           <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-hidden">
+            <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 max- overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-100">
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-3">

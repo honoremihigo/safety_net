@@ -42,6 +42,8 @@ import {
 import { Outlet, useLocation } from "react-router-dom";
 import { Link } from "react-router-dom";
 
+import logo from "../assets/images/safety_net_logo.png"; // Ensure you have a logo image in the specified path
+
 const AdminSidebar = ({
   currentUser,
   sidebarOpen,
@@ -207,8 +209,8 @@ const AdminSidebar = ({
           <div className="flex items-center justify-between p-4 border-b">
             {sidebarOpen && (
               <div className="flex items-center space-x-2">
-                <Shield className="w-8 h-8 text-primary-600" />
-                <span className="text-xl font-bold text-gray-900">Admin</span>
+                <img src={logo} className="w-16 h-16" />
+                <span className="text-xl font-bold text-gray-900">Safety Net</span>
               </div>
             )}
             <button
@@ -286,15 +288,7 @@ const AdminSidebar = ({
                 </div>
               )}
             </div>
-            {sidebarOpen && (
-              <button
-                onClick={onLogout}
-                className="w-full mt-3 flex items-center justify-center space-x-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Sign out</span>
-              </button>
-            )}
+    
           </div>
         </div>
       </aside>

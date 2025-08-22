@@ -365,12 +365,7 @@ export default function BodyShapeTipsManagement() {
                 </p>
               </div>
               {/* Footer */}
-              <div className="pt-4 border-t border-gray-100">
-                <div className="flex items-center gap-2 text-xs text-gray-500">
-                  <Calendar size={12} />
-                  <span>Created {formatDate(tip.createdAt)}</span>
-                </div>
-              </div>
+              
             </div>
           </div>
         ))}
@@ -394,7 +389,7 @@ export default function BodyShapeTipsManagement() {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Content</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+          
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
@@ -431,14 +426,7 @@ export default function BodyShapeTipsManagement() {
                     {tip.category}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center gap-2">
-                    <Calendar size={14} className="text-gray-400" />
-                    <span className="text-sm text-gray-600">
-                      {formatDate(tip.createdAt)}
-                    </span>
-                  </div>
-                </td>
+              
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center gap-2">
                     <button
@@ -474,7 +462,7 @@ export default function BodyShapeTipsManagement() {
   );
 
   return (
-    <div className="bg-gray-50 p-4 h-[90vh] sm:p-6 lg:p-8">
+    <div className="bg-gray-50 p-4 sm:p-6 lg:p-8">
       <div className="h-full overflow-y-auto mx-auto">
         {/* Header Section */}
         <div className="mb-8">
@@ -732,22 +720,7 @@ export default function BodyShapeTipsManagement() {
                       <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">{selectedTip.content}</p>
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-200">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-500 mb-1">Created</label>
-                      <div className="flex items-center gap-2 text-gray-700">
-                        <Calendar size={16} />
-                        <span>{formatDate(selectedTip.createdAt)}</span>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-500 mb-1">Last Updated</label>
-                      <div className="flex items-center gap-2 text-gray-700">
-                        <Calendar size={16} />
-                        <span>{formatDate(selectedTip.updatedAt || selectedTip.createdAt)}</span>
-                      </div>
-                    </div>
-                  </div>
+                 
                   <div className="flex gap-3 pt-6 border-t border-gray-200">
                     <button
                       onClick={() => {

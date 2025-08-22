@@ -507,7 +507,7 @@ export default function SelfHarmCopingStrategiesManagement() {
   );
 
   return (
-    <div className="bg-gray-50 p-4 h-[90vh] sm:p-6 lg:p-8">
+    <div className="bg-gray-50 p-4  sm:p-6 lg:p-8">
       <div className="h-full overflow-y-auto mx-auto">
         {/* Header Section */}
         <div className="mb-8">
@@ -805,22 +805,7 @@ export default function SelfHarmCopingStrategiesManagement() {
                       </ul>
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-200">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-500 mb-1">Created</label>
-                      <div className="flex items-center gap-2 text-gray-700">
-                        <Calendar size={16} />
-                        <span>{formatDate(selectedStrategy.createdAt)}</span>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-500 mb-1">Last Updated</label>
-                      <div className="flex items-center gap-2 text-gray-700">
-                        <Calendar size={16} />
-                        <span>{formatDate(selectedStrategy.updatedAt || selectedStrategy.createdAt)}</span>
-                      </div>
-                    </div>
-                  </div>
+                  
                   <div className="flex gap-3 pt-6 border-t border-gray-200">
                     <button
                       onClick={() => {

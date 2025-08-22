@@ -1,5 +1,7 @@
 import React, { Suspense, lazy } from "react";
 import { BrowserRouter, createBrowserRouter, Route, RouterProvider, Routes } from "react-router-dom"
+import logo from "./assets/images/safety_net_logo.png"
+
 import AdminDashboard from "./pages/DashboardHome";
 import AdminLayout from "./layouts/AdminLayout";
 import DashboardHome from "./pages/DashboardHome";
@@ -16,6 +18,7 @@ import CrisisMessagesManagement from "./pages/CrisisMessagesManagement";
 import EmergencyActionsManagement from "./pages/EmergencyActionsManagement";
 import SelfHarmCopingStrategiesManagement from "./pages/SelfHarmCopingStrategiesManagement";
 import TestimonialsManagement from "./pages/TestimonialsManagement";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const LoginPage = lazy(() => import('./pages/auth/Login'))
 
@@ -23,12 +26,14 @@ const LoginPage = lazy(() => import('./pages/auth/Login'))
 
 // Loading component
 const LoadingSpinner = () => (
-  <div className="loading-spinner">
-    <div className="spinner"></div>
-    <p>Loading...</p>
+  <div className="flex items-center justify-center h-screen bg-white">
+    <img
+      src={logo}
+      alt="Loading..."
+      className="h-40 animate-zoomInOut"
+    />
   </div>
 );
-
 const SuspenseWrapper = ({ children }) => {
   return <Suspense fallback={<LoadingSpinner />}>{children}</Suspense>
 }
@@ -44,7 +49,7 @@ const router = createBrowserRouter([
   },
   {
     path: '/admin',
-    element: <AdminLayout />,
+    element:<ProtectedRoute>  <AdminLayout /> </ProtectedRoute>,
     children: [
       {
         path: 'dashboard',

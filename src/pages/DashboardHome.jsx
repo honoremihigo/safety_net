@@ -158,7 +158,7 @@ const DashboardHome = () => {
   );
 
   return (
-    <div className="h-[100vh] overflow-y-auto bg-gray-50 p-6">
+    <div className=" bg-gray-50 p-6">
       <div className=" mx-auto">
         {/* Header */}
         <div className="mb-8">

@@ -494,7 +494,7 @@ export default function CrisisMessagesManagement() {
   );
 
   return (
-    <div className="bg-gray-50 p-4 h-[90vh] sm:p-6 lg:p-8">
+    <div className="bg-gray-50 p-4 sm:p-6 lg:p-8">
       <div className="h-full overflow-y-auto mx-auto">
         {/* Header Section */}
         <div className="mb-8">
