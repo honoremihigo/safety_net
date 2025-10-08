@@ -21,7 +21,7 @@ import { getAllGeneralTips } from "../services/generalTipsService";
 import { getAllGuiltTips } from "../services/guiltTipsService";
 import { getAllPanicAttackTips } from "../services/panicAttackTipsService";
 import { getAllCrisisContacts } from "../services/crisisContactsService";
-import { getAllCrisisMessages } from "../services/crisisMessagesService";
+import { getAllCrisisMessages } from "../services/crisisMessageService";
 import { getAllEmergencyActions } from "../services/emergencyActionsService";
 import { getAllSelfHarmCopingStrategies } from "../services/selfHarmCopingStrategiesService";
 import { getAllTestimonials } from "../services/testimonialsService";

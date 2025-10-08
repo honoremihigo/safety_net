@@ -19,6 +19,7 @@ import EmergencyActionsManagement from "./pages/EmergencyActionsManagement";
 import SelfHarmCopingStrategiesManagement from "./pages/SelfHarmCopingStrategiesManagement";
 import TestimonialsManagement from "./pages/TestimonialsManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
+import TherapyBookingsManagement from "./pages/TherapyBookingsManagement";
 
 const LoginPage = lazy(() => import('./pages/auth/Login'))
 
@@ -106,6 +107,14 @@ const router = createBrowserRouter([
       {
         path: 'users',
         element: (<SuspenseWrapper><UserManagement /></SuspenseWrapper>)
+      },
+      {
+        path: 'users',
+        element: (<SuspenseWrapper><UserManagement /></SuspenseWrapper>)
+      },
+      {
+        path: 'therapy-booking',
+        element: (<SuspenseWrapper><TherapyBookingsManagement /></SuspenseWrapper>)
       },
     ]
   }

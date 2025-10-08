@@ -438,12 +438,12 @@ export default function SelfHarmCopingStrategiesManagement() {
             {currentStrategies.map((s, index) => (
               s && s.category && s.color !== undefined && s.icon && Array.isArray(s.tips) && s.tips.length > 0 ? (
                 <tr key={s.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-2 whitespace-nowrap">
                     <span className="text-sm font-mono text-gray-600 bg-gray-100 px-2 py-1 rounded">
                       {startIndex + index + 1}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-2 whitespace-nowrap">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white">
                         <Heart size={16} />
@@ -455,23 +455,23 @@ export default function SelfHarmCopingStrategiesManagement() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-2 whitespace-nowrap">
                     <span className="text-sm text-gray-600">{s.icon}</span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-2 whitespace-nowrap">
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 rounded-full" style={{ backgroundColor: s.color }}></div>
                       <span className="text-sm text-gray-600">{s.color}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-2">
                     <div className="max-w-xs">
                       <p className="text-sm text-gray-600 truncate" title={s.tips.join(", ")}>
                         {truncateText(s.tips.join(", "), 60)}
                       </p>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-2 whitespace-nowrap">
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleView(s)}

@@ -38,6 +38,8 @@ import {
   Quote,
   Apple,
   UserX,
+  MessageCircleReply,
+  Calendar,
 } from "lucide-react";
 import { Outlet, useLocation } from "react-router-dom";
 import { Link } from "react-router-dom";
@@ -121,6 +123,7 @@ const AdminSidebar = ({
     },
     { id: "self-harm-coping-strategies", label: "Self Harm Coping", icon: HeartHandshake, path: "/admin/self-harm-coping-strategies" },
     { id: "testimonials", label: "Testimonials", icon: Quote, path: "/admin/testimonials" },
+    { id: "therapy", label: "Therapy Booking", icon: Calendar, path: "/admin/therapy-booking" },
   ];
 
   const SidebarItem = ({ item, isActive, onClick }) => (

@@ -251,13 +251,13 @@ export default function UserManagement() {
           <tbody className="bg-white divide-y divide-gray-200">
             {currentUsers.map((user, index) => (
               <tr key={user.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-6 py-2 whitespace-nowrap">
                   <span className="text-sm font-mono text-gray-600 bg-gray-100 px-2 py-1 rounded">
                     {startIndex + index + 1}
                   </span>
                 </td>
                 
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-6 py-2 whitespace-nowrap">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gradient-to-br capitalize from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
                       {getInitials(user.firstName, user.lastName )} {getInitials(user.lastName || user.firstName ? '' :  user.email) }
@@ -274,7 +274,7 @@ export default function UserManagement() {
                   </div>
                 </td>
                 
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-6 py-2 whitespace-nowrap">
                   <div className="flex items-center gap-2 text-sm text-gray-900">
                     <Mail size={14} className="text-gray-400" />
                     <span className="truncate max-w-48">{user.email || 'No email'}</span>
@@ -282,7 +282,7 @@ export default function UserManagement() {
                 </td>
 
                 
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-6 py-2 whitespace-nowrap">
                   <div className="flex items-center gap-2">
                     <Calendar size={14} className="text-gray-400" />
                     <span className="text-sm text-gray-600">
@@ -291,7 +291,7 @@ export default function UserManagement() {
                   </div>
                 </td>
                 
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-6 py-2 whitespace-nowrap">
                   <div className="flex items-center gap-2">
                     <button
                       className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
