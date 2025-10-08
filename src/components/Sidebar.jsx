@@ -47,10 +47,10 @@ import logo from "../assets/images/safety_net_logo.png"; // Ensure you have a lo
 const AdminSidebar = ({
   currentUser,
   sidebarOpen,
-  setSidebarOpen,
+
   mobileMenuOpen,
   setMobileMenuOpen,
-  onLogout,
+
 }) => {
   const location = useLocation();
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -110,7 +110,7 @@ const AdminSidebar = ({
     },
     {
       id: "contacts",
-      label: "Contact & Crisis Management",
+      label: "Crisis Management",
       icon: Phone,
       isDropdown: true,
       children: [
@@ -201,7 +201,7 @@ const AdminSidebar = ({
         className={`${
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0 fixed inset-y-0 left-0 z-50 ${
-          sidebarOpen ? "w-80" : "w-20"
+          sidebarOpen ? "w-72" : "w-20"
         } bg-white border-r border-gray-200 transition-all duration-300`}
       >
         <div className="flex flex-col h-full">
