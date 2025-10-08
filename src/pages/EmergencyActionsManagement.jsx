@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Plus, Edit, Trash2, X, ChevronLeft, ChevronRight, BookOpen, FileText, Search, RefreshCw, AlertTriangle, Eye,Calendar } from "lucide-react";
+import { Plus, Edit, Trash2, X, ChevronLeft, ChevronRight, BookOpen, FileText, Search, RefreshCw, AlertTriangle, Eye, Calendar } from "lucide-react";
 import { addEmergencyAction, getAllEmergencyActions, updateEmergencyAction, deleteEmergencyAction } from "../services/emergencyActionsService";
 import { isAuthenticated } from "../services/authService";
 import { useNavigate } from "react-router-dom";
@@ -50,7 +50,6 @@ export default function EmergencyActionsManagement() {
     
     try {
       const fetchedActions = await getAllEmergencyActions();
-      // Validate and filter actions to ensure they have action, contact, and userId
       const validActions = fetchedActions.filter(a => 
         a && typeof a.action === 'string' && typeof a.contact === 'string' && typeof a.userId === 'string'
       );
@@ -67,7 +66,7 @@ export default function EmergencyActionsManagement() {
           title: 'Refreshed!',
           text: 'Actions refreshed successfully!',
           position: 'center',
-          timer: 2000,
+          timer: 1500,
           showConfirmButton: false
         });
       }
@@ -97,7 +96,7 @@ export default function EmergencyActionsManagement() {
           title: 'Updated!',
           text: 'Action updated successfully!',
           position: 'center',
-          timer: 2000,
+          timer: 1500,
           showConfirmButton: false
         });
         setEditingActionId(null);
@@ -108,7 +107,7 @@ export default function EmergencyActionsManagement() {
           title: 'Added!',
           text: 'Action added successfully!',
           position: 'center',
-          timer: 2000,
+          timer: 1500,
           showConfirmButton: false
         });
       }
@@ -171,7 +170,7 @@ export default function EmergencyActionsManagement() {
           title: 'Deleted!',
           text: 'Action has been deleted successfully!',
           position: 'center',
-          timer: 2000,
+          timer: 1500,
           showConfirmButton: false
         });
         fetchActions();
@@ -220,7 +219,6 @@ export default function EmergencyActionsManagement() {
 
   const formatDate = (dateField) => {
     if (!dateField) return 'Unknown';
-    // Handle Firestore Timestamp
     const date = dateField.toDate ? dateField.toDate() : new Date(dateField);
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
@@ -229,7 +227,7 @@ export default function EmergencyActionsManagement() {
     });
   };
 
-  const truncateText = (text, maxLength = 100) => {
+  const truncateText = (text, maxLength = 80) => {
     if (!text || typeof text !== 'string') return 'No action available';
     if (text.length <= maxLength) return text;
     return text.substr(0, maxLength) + '...';
@@ -276,9 +274,9 @@ export default function EmergencyActionsManagement() {
 
   // Pagination Component
   const PaginationComponent = () => (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-gray-200 bg-gray-50">
-      <div className="flex items-center gap-4">
-        <p className="text-sm text-gray-600">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-gray-200 bg-gray-50">
+      <div className="flex items-center gap-3">
+        <p className="text-xs text-gray-600">
           Showing {startIndex + 1} to {Math.min(endIndex, filteredActions.length)} of {filteredActions.length} entries
         </p>
       </div>
@@ -288,24 +286,24 @@ export default function EmergencyActionsManagement() {
           <button
             onClick={handlePreviousPage}
             disabled={currentPage === 1}
-            className={`flex items-center gap-1 px-3 py-2 text-sm border rounded-md transition-colors ${
+            className={`flex items-center gap-1 px-2 py-1.5 text-xs border rounded-md transition-colors ${
               currentPage === 1
                 ? 'border-gray-200 text-gray-400 cursor-not-allowed'
                 : 'border-gray-300 text-gray-700 hover:bg-gray-100'
             }`}
           >
-            <ChevronLeft size={16} />
+            <ChevronLeft size={14} />
             Previous
           </button>
           
-          <div className="flex items-center gap-1 mx-2">
+          <div className="flex items-center gap-1 mx-1">
             {getPageNumbers().map((page) => (
               <button
                 key={page}
                 onClick={() => handlePageChange(page)}
-                className={`px-3 py-2 text-sm rounded-md transition-colors ${
+                className={`px-2 py-1 text-xs rounded-md transition-colors ${
                   currentPage === page
-                    ? 'bg-indigo-600 text-white'
+                    ? 'bg-primary-600 text-white'
                     : 'border border-gray-300 text-gray-700 hover:bg-gray-100'
                 }`}
               >
@@ -317,14 +315,14 @@ export default function EmergencyActionsManagement() {
           <button
             onClick={handleNextPage}
             disabled={currentPage === totalPages}
-            className={`flex items-center gap-1 px-3 py-2 text-sm border rounded-md transition-colors ${
+            className={`flex items-center gap-1 px-2 py-1.5 text-xs border rounded-md transition-colors ${
               currentPage === totalPages
                 ? 'border-gray-200 text-gray-400 cursor-not-allowed'
                 : 'border-gray-300 text-gray-700 hover:bg-gray-100'
             }`}
           >
             Next
-            <ChevronRight size={16} />
+            <ChevronRight size={14} />
           </button>
         </div>
       )}
@@ -334,53 +332,50 @@ export default function EmergencyActionsManagement() {
   // Card View Component (Mobile/Tablet)
   const CardView = () => (
     <div className="md:hidden">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
         {currentActions.map((a, index) => (
           a && a.action && a.contact && a.userId ? (
-            <div key={a.id} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-              <div className="p-6">
-                {/* Action Header */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-start gap-3 flex-1 min-w-0">
-                    <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white flex-shrink-0">
-                      <AlertTriangle size={20} />
+            <div key={a.id} className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+              <div className="p-4">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-start gap-2 flex-1 min-w-0">
+                    <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center text-white flex-shrink-0">
+                      <AlertTriangle size={16} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 truncate text-sm" title={a.action}>
+                      <h3 className="font-semibold text-gray-900 truncate text-xs" title={a.action}>
                         {a.action}
                       </h3>
-                      <p className="text-xs text-gray-500">{a.contact}</p>
+                      <p className="text-[10px] text-gray-500">{a.contact}</p>
                     </div>
                   </div>
-                  {/* Action Buttons */}
-                  <div className="flex gap-1 flex-shrink-0">
+                  <div className="flex gap-0.5 flex-shrink-0">
                     <button
                       onClick={() => handleView(a)}
-                      className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                      className="p-1 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                       title="View action"
                     >
-                      <Eye size={14} />
+                      <Eye size={12} />
                     </button>
                     <button
                       onClick={() => handleEdit(a)}
-                      className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                      className="p-1 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                       title="Edit action"
                     >
-                      <Edit size={14} />
+                      <Edit size={12} />
                     </button>
                     <button
                       onClick={() => handleDelete(a.id)}
-                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                       title="Delete action"
                     >
-                      <Trash2 size={14} />
+                      <Trash2 size={12} />
                     </button>
                   </div>
                 </div>
-                {/* Action User ID */}
-                <div className="mb-4">
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    User ID: {truncateText(a.userId, 120)}
+                <div className="mb-3">
+                  <p className="text-xs text-gray-600 leading-relaxed">
+                    User ID: {truncateText(a.userId, 80)}
                   </p>
                 </div>
               </div>
@@ -388,9 +383,7 @@ export default function EmergencyActionsManagement() {
           ) : null
         ))}
       </div>
-      
-      {/* Pagination for Cards */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         <PaginationComponent />
       </div>
     </div>
@@ -398,71 +391,71 @@ export default function EmergencyActionsManagement() {
 
   // Table View Component (Desktop)
   const TableView = () => (
-    <div className="hidden md:block bg-white rounded-xl shadow-sm border border-gray-200">
+    <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-200">
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User ID</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">#</th>
+              <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">Action</th>
+              <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+              <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">User ID</th>
+              <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {currentActions.map((a, index) => (
               a && a.action && a.contact && a.userId ? (
                 <tr key={a.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-2 whitespace-nowrap">
-                    <span className="text-sm font-mono text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                  <td className="px-4 py-1.5 whitespace-nowrap">
+                    <span className="text-xs font-mono text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">
                       {startIndex + index + 1}
                     </span>
                   </td>
-                  <td className="px-6 py-2 whitespace-nowrap">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white">
-                        <AlertTriangle size={16} />
+                  <td className="px-4 py-1.5 whitespace-nowrap">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center text-white">
+                        <AlertTriangle size={14} />
                       </div>
-                      <div className="max-w-48">
-                        <div className="font-medium text-gray-900 truncate" title={a.action}>
+                      <div className="max-w-40">
+                        <div className="font-medium text-gray-900 truncate text-xs" title={a.action}>
                           {a.action}
                         </div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-2 whitespace-nowrap">
-                    <span className="text-sm text-gray-600">{a.contact}</span>
+                  <td className="px-4 py-1.5 whitespace-nowrap">
+                    <span className="text-xs text-gray-600">{a.contact}</span>
                   </td>
-                  <td className="px-6 py-2">
+                  <td className="px-4 py-1.5">
                     <div className="max-w-xs">
-                      <p className="text-sm text-gray-600 truncate" title={a.userId}>
-                        {truncateText(a.userId, 60)}
+                      <p className="text-xs text-gray-600 truncate" title={a.userId}>
+                        {truncateText(a.userId, 50)}
                       </p>
                     </div>
                   </td>
-                  <td className="px-6 py-2 whitespace-nowrap">
-                    <div className="flex items-center gap-2">
+                  <td className="px-4 py-1.5 whitespace-nowrap">
+                    <div className="flex items-center gap-1">
                       <button
                         onClick={() => handleView(a)}
-                        className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                        className="p-1 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                         title="View Details"
                       >
-                        <Eye size={16} />
+                        <Eye size={14} />
                       </button>
                       <button
                         onClick={() => handleEdit(a)}
-                        className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                        className="p-1 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                         title="Edit"
                       >
-                        <Edit size={16} />
+                        <Edit size={14} />
                       </button>
                       <button
                         onClick={() => handleDelete(a.id)}
-                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         title="Delete"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </td>
@@ -477,73 +470,73 @@ export default function EmergencyActionsManagement() {
   );
 
   return (
-    <div className="bg-gray-50 p-4 sm:p-6 lg:p-8">
+    <div className="bg-gray-50 p-3 sm:p-4 lg:p-6">
       <div className="h-full overflow-y-auto mx-auto">
         {/* Header Section */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-indigo-600 rounded-lg">
-              <AlertTriangle className="w-6 h-6 text-white" />
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="p-1.5 bg-primary-600 rounded-lg">
+              <AlertTriangle className="w-5 h-5 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900">Emergency Actions Management</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Emergency Actions Management</h1>
           </div>
-          <p className="text-gray-600">Manage and organize emergency actions</p>
+          <p className="text-sm text-gray-600">Manage and organize emergency actions</p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-indigo-100 rounded-lg">
-                <FileText className="h-6 w-6 text-indigo-600" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary-100 rounded-lg">
+                <FileText className="h-5 w-5 text-primary-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">Total Actions</p>
-                <p className="text-2xl font-bold text-gray-900">{actions.length}</p>
+                <p className="text-xs font-medium text-gray-500">Total Actions</p>
+                <p className="text-xl font-bold text-gray-900">{actions.length}</p>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-green-100 rounded-lg">
-                <BookOpen className="h-6 w-6 text-green-600" />
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-green-100 rounded-lg">
+                <BookOpen className="h-5 w-5 text-green-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">Filtered Actions</p>
-                <p className="text-2xl font-bold text-gray-900">{filteredActions.length}</p>
+                <p className="text-xs font-medium text-gray-500">Filtered Actions</p>
+                <p className="text-xl font-bold text-gray-900">{filteredActions.length}</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Search and Actions Bar */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6 p-6">
-          <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-4 p-4">
+          <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
             <div className="relative flex-grow max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
                 placeholder="Search actions by action, contact, or user ID..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-sm"
               />
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               <button
                 onClick={() => fetchActions(true)}
                 disabled={isRefreshing}
-                className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2.5 rounded-lg font-medium transition-colors shadow-sm disabled:opacity-50"
+                className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg font-medium transition-colors shadow-sm disabled:opacity-50 text-sm"
               >
-                <RefreshCw size={18} className={isRefreshing ? 'animate-spin' : ''} />
+                <RefreshCw size={16} className={isRefreshing ? 'animate-spin' : ''} />
                 Refresh
               </button>
               <button
                 onClick={openModal}
                 disabled={isLoading}
-                className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white px-4 py-2.5 rounded-lg font-medium transition-colors shadow-sm"
+                className="flex items-center gap-1 bg-primary-600 hover:bg-primary-700 disabled:bg-primary-400 text-white px-3 py-2 rounded-lg font-medium transition-colors shadow-sm text-sm"
               >
-                <Plus size={20} />
+                <Plus size={16} />
                 Add Action
               </button>
             </div>
@@ -552,25 +545,25 @@ export default function EmergencyActionsManagement() {
 
         {/* Loading State */}
         {isLoading && !isRefreshing ? (
-          <div className="text-center py-12">
-            <div className="inline-flex items-center gap-3">
-              <RefreshCw className="w-5 h-5 animate-spin text-indigo-600" />
-              <p className="text-gray-600">Loading actions...</p>
+          <div className="text-center py-8">
+            <div className="inline-flex items-center gap-2">
+              <RefreshCw className="w-4 h-4 animate-spin text-primary-600" />
+              <p className="text-sm text-gray-600">Loading actions...</p>
             </div>
           </div>
         ) : filteredActions.length === 0 ? (
-          <div className="text-center py-12">
-            <AlertTriangle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No actions found</h3>
-            <p className="text-gray-600 mb-4">
+          <div className="text-center py-8">
+            <AlertTriangle className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+            <h3 className="text-base font-medium text-gray-900 mb-1">No actions found</h3>
+            <p className="text-sm text-gray-600 mb-3">
               {searchTerm ? 'Try adjusting your search terms.' : 'Get started by adding your first action.'}
             </p>
             {!searchTerm && (
               <button
                 onClick={openModal}
-                className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                className="inline-flex items-center gap-1 bg-primary-600 hover:bg-primary-700 text-white px-3 py-2 rounded-lg font-medium transition-colors text-sm"
               >
-                <Plus size={20} />
+                <Plus size={16} />
                 Add First Action
               </button>
             )}
@@ -584,30 +577,30 @@ export default function EmergencyActionsManagement() {
 
         {/* Add/Edit Modal */}
         {isModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 transform transition-all duration-200">
-              <div className="px-6 py-4 border-b border-gray-100">
+          <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-3">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 transform transition-all duration-200">
+              <div className="px-4 py-3 border-b border-gray-100">
                 <div className="flex justify-between items-center">
                   <div>
                     <h2 className="text-lg font-bold text-gray-900">
                       {editingActionId ? "Edit Action" : "Add New Action"}
                     </h2>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-xs text-gray-500">
                       {editingActionId ? "Update action details" : "Create a new emergency action"}
                     </p>
                   </div>
                   <button
                     onClick={closeModal}
-                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
+                    className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
                   >
-                    <X size={20} />
+                    <X size={16} />
                   </button>
                 </div>
               </div>
-              <form onSubmit={handleSubmit} className="p-6">
-                <div className="space-y-4">
+              <form onSubmit={handleSubmit} className="p-4">
+                <div className="space-y-3">
                   <div>
-                    <label htmlFor="action" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="action" className="block text-xs font-medium text-gray-700 mb-1">
                       Action <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -617,12 +610,12 @@ export default function EmergencyActionsManagement() {
                       required
                       value={action}
                       onChange={(e) => setAction(e.target.value)}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-gray-900 placeholder-gray-400"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-sm placeholder-gray-400"
                       placeholder="Enter emergency action"
                     />
                   </div>
                   <div>
-                    <label htmlFor="contact" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="contact" className="block text-xs font-medium text-gray-700 mb-1">
                       Contact <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -632,12 +625,12 @@ export default function EmergencyActionsManagement() {
                       required
                       value={contact}
                       onChange={(e) => setContact(e.target.value)}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-gray-900 placeholder-gray-400"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-sm placeholder-gray-400"
                       placeholder="Enter contact information"
                     />
                   </div>
                   <div>
-                    <label htmlFor="userId" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="userId" className="block text-xs font-medium text-gray-700 mb-1">
                       User ID <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -647,20 +640,20 @@ export default function EmergencyActionsManagement() {
                       required
                       value={userId}
                       onChange={(e) => setUserId(e.target.value)}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-gray-900 placeholder-gray-400"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-sm placeholder-gray-400"
                       placeholder="Enter user ID"
                     />
                   </div>
                 </div>
-                <div className="flex space-x-3 mt-6">
+                <div className="flex space-x-2 mt-4">
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="flex-1 bg-indigo-600 text-white py-2.5 px-4 rounded-lg font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-200 transition-all duration-200 disabled:bg-indigo-300 disabled:cursor-not-allowed"
+                    className="flex-1 bg-primary-600 text-white py-2 px-3 rounded-lg font-medium hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-200 transition-all duration-200 disabled:bg-primary-300 disabled:cursor-not-allowed text-sm"
                   >
                     {isLoading ? (
                       <span className="flex items-center justify-center">
-                        <RefreshCw className="w-4 h-4 animate-spin mr-2" />
+                        <RefreshCw className="w-4 h-4 animate-spin mr-1" />
                         {editingActionId ? 'Updating...' : 'Adding...'}
                       </span>
                     ) : (
@@ -670,7 +663,7 @@ export default function EmergencyActionsManagement() {
                   <button
                     type="button"
                     onClick={closeModal}
-                    className="flex-1 bg-gray-100 text-gray-700 py-2.5 px-4 rounded-lg font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-200 transition-all duration-200"
+                    className="flex-1 bg-gray-100 text-gray-700 py-2 px-3 rounded-lg font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-200 transition-all duration-200 text-sm"
                   >
                     Cancel
                   </button>
@@ -682,66 +675,66 @@ export default function EmergencyActionsManagement() {
 
         {/* View Modal */}
         {isViewModalOpen && selectedAction && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 max- overflow-hidden">
-              <div className="px-6 py-4 border-b border-gray-100">
+          <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-3">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-xl mx-4 max-h-[85vh] overflow-hidden">
+              <div className="px-4 py-3 border-b border-gray-100">
                 <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white">
-                      <AlertTriangle size={20} />
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center text-white">
+                      <AlertTriangle size={16} />
                     </div>
                     <div>
-                      <h2 className="text-xl font-bold text-gray-900">Action Details</h2>
-                      <p className="text-sm text-gray-500">View complete emergency action information</p>
+                      <h2 className="text-lg font-bold text-gray-900">Action Details</h2>
+                      <p className="text-xs text-gray-500">View complete emergency action information</p>
                     </div>
                   </div>
                   <button
                     onClick={() => setIsViewModalOpen(false)}
-                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
+                    className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
                   >
-                    <X size={20} />
+                    <X size={16} />
                   </button>
                 </div>
               </div>
-              <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-                <div className="space-y-6">
+              <div className="p-4 overflow-y-auto max-h-[calc(85vh-100px)]">
+                <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-500 mb-2">Action</label>
-                    <h3 className="text-2xl font-bold text-gray-900">{selectedAction.action || 'No action available'}</h3>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Action</label>
+                    <h3 className="text-xl font-bold text-gray-900">{selectedAction.action || 'No action available'}</h3>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-500 mb-2">Contact</label>
-                    <p className="text-gray-800">{selectedAction.contact || 'No contact available'}</p>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Contact</label>
+                    <p className="text-sm text-gray-800">{selectedAction.contact || 'No contact available'}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-500 mb-2">User ID</label>
-                    <p className="text-gray-800">{selectedAction.userId || 'No user ID available'}</p>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">User ID</label>
+                    <p className="text-sm text-gray-800">{selectedAction.userId || 'No user ID available'}</p>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-200">
                     <div>
-                      <label className="block text-sm font-medium text-gray-500 mb-1">Created</label>
-                      <div className="flex items-center gap-2 text-gray-700">
-                        <Calendar size={16} />
+                      <label className="block text-xs font-medium text-gray-500 mb-1">Created</label>
+                      <div className="flex items-center gap-1 text-sm text-gray-700">
+                        <Calendar size={14} />
                         <span>{formatDate(selectedAction.timestamp)}</span>
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-500 mb-1">Last Updated</label>
-                      <div className="flex items-center gap-2 text-gray-700">
-                        <Calendar size={16} />
+                      <label className="block text-xs font-medium text-gray-500 mb-1">Last Updated</label>
+                      <div className="flex items-center gap-1 text-sm text-gray-700">
+                        <Calendar size={14} />
                         <span>{formatDate(selectedAction.updatedAt || selectedAction.timestamp)}</span>
                       </div>
                     </div>
                   </div>
-                  <div className="flex gap-3 pt-6 border-t border-gray-200">
+                  <div className="flex gap-2 pt-4 border-t border-gray-200">
                     <button
                       onClick={() => {
                         setIsViewModalOpen(false);
                         handleEdit(selectedAction);
                       }}
-                      className="flex-1 flex items-center justify-center gap-2 bg-indigo-600 text-white py-2.5 px-4 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+                      className="flex-1 flex items-center justify-center gap-1 bg-primary-600 text-white py-2 px-3 rounded-lg font-medium hover:bg-primary-700 transition-colors text-sm"
                     >
-                      <Edit size={16} />
+                      <Edit size={14} />
                       Edit Action
                     </button>
                     <button
@@ -749,9 +742,9 @@ export default function EmergencyActionsManagement() {
                         setIsViewModalOpen(false);
                         handleDelete(selectedAction.id);
                       }}
-                      className="flex-1 flex items-center justify-center gap-2 bg-red-600 text-white py-2.5 px-4 rounded-lg font-medium hover:bg-red-700 transition-colors"
+                      className="flex-1 flex items-center justify-center gap-1 bg-red-600 text-white py-2 px-3 rounded-lg font-medium hover:bg-red-700 transition-colors text-sm"
                     >
-                      <Trash2 size={16} />
+                      <Trash2 size={14} />
                       Delete Action
                     </button>
                   </div>

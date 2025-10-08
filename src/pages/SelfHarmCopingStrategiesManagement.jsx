@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Plus, Edit, Trash2, X, ChevronLeft, ChevronRight, BookOpen, FileText, Search, RefreshCw, Heart, Eye,Calendar } from "lucide-react";
+import { Plus, Edit, Trash2, X, ChevronLeft, ChevronRight, BookOpen, FileText, Search, RefreshCw, Heart, Eye } from "lucide-react";
 import { addSelfHarmCopingStrategy, getAllSelfHarmCopingStrategies, updateSelfHarmCopingStrategy, deleteSelfHarmCopingStrategy } from "../services/selfHarmCopingStrategiesService";
 import { isAuthenticated } from "../services/authService";
 import { useNavigate } from "react-router-dom";
@@ -52,7 +52,6 @@ export default function SelfHarmCopingStrategiesManagement() {
     
     try {
       const fetchedStrategies = await getAllSelfHarmCopingStrategies();
-      // Validate and filter strategies to ensure they have required fields
       const validStrategies = fetchedStrategies.filter(s => 
         s && typeof s.category === 'string' && s.color !== undefined && 
         typeof s.icon === 'string' && Array.isArray(s.tips) && s.tips.length > 0 &&
@@ -71,7 +70,7 @@ export default function SelfHarmCopingStrategiesManagement() {
           title: 'Refreshed!',
           text: 'Strategies refreshed successfully!',
           position: 'center',
-          timer: 2000,
+          timer: 1500,
           showConfirmButton: false
         });
       }
@@ -115,7 +114,7 @@ export default function SelfHarmCopingStrategiesManagement() {
           title: 'Updated!',
           text: 'Strategy updated successfully!',
           position: 'center',
-          timer: 2000,
+          timer: 1500,
           showConfirmButton: false
         });
         setEditingStrategyId(null);
@@ -126,7 +125,7 @@ export default function SelfHarmCopingStrategiesManagement() {
           title: 'Added!',
           text: 'Strategy added successfully!',
           position: 'center',
-          timer: 2000,
+          timer: 1500,
           showConfirmButton: false
         });
       }
@@ -192,7 +191,7 @@ export default function SelfHarmCopingStrategiesManagement() {
           title: 'Deleted!',
           text: 'Strategy has been deleted successfully!',
           position: 'center',
-          timer: 2000,
+          timer: 1500,
           showConfirmButton: false
         });
         fetchStrategies();
@@ -243,16 +242,7 @@ export default function SelfHarmCopingStrategiesManagement() {
     setNewTip("");
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return 'Unknown';
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
-  const truncateText = (text, maxLength = 100) => {
+  const truncateText = (text, maxLength = 80) => {
     if (!text || typeof text !== 'string') return 'No content available';
     if (text.length <= maxLength) return text;
     return text.substr(0, maxLength) + '...';
@@ -299,9 +289,9 @@ export default function SelfHarmCopingStrategiesManagement() {
 
   // Pagination Component
   const PaginationComponent = () => (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-gray-200 bg-gray-50">
-      <div className="flex items-center gap-4">
-        <p className="text-sm text-gray-600">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-gray-200 bg-gray-50">
+      <div className="flex items-center gap-3">
+        <p className="text-xs text-gray-600">
           Showing {startIndex + 1} to {Math.min(endIndex, filteredStrategies.length)} of {filteredStrategies.length} entries
         </p>
       </div>
@@ -311,24 +301,24 @@ export default function SelfHarmCopingStrategiesManagement() {
           <button
             onClick={handlePreviousPage}
             disabled={currentPage === 1}
-            className={`flex items-center gap-1 px-3 py-2 text-sm border rounded-md transition-colors ${
+            className={`flex items-center gap-1 px-2 py-1.5 text-xs border rounded-md transition-colors ${
               currentPage === 1
                 ? 'border-gray-200 text-gray-400 cursor-not-allowed'
                 : 'border-gray-300 text-gray-700 hover:bg-gray-100'
             }`}
           >
-            <ChevronLeft size={16} />
+            <ChevronLeft size={14} />
             Previous
           </button>
           
-          <div className="flex items-center gap-1 mx-2">
+          <div className="flex items-center gap-1 mx-1">
             {getPageNumbers().map((page) => (
               <button
                 key={page}
                 onClick={() => handlePageChange(page)}
-                className={`px-3 py-2 text-sm rounded-md transition-colors ${
+                className={`px-2 py-1 text-xs rounded-md transition-colors ${
                   currentPage === page
-                    ? 'bg-indigo-600 text-white'
+                    ? 'bg-primary-600 text-white'
                     : 'border border-gray-300 text-gray-700 hover:bg-gray-100'
                 }`}
               >
@@ -340,14 +330,14 @@ export default function SelfHarmCopingStrategiesManagement() {
           <button
             onClick={handleNextPage}
             disabled={currentPage === totalPages}
-            className={`flex items-center gap-1 px-3 py-2 text-sm border rounded-md transition-colors ${
+            className={`flex items-center gap-1 px-2 py-1.5 text-xs border rounded-md transition-colors ${
               currentPage === totalPages
                 ? 'border-gray-200 text-gray-400 cursor-not-allowed'
                 : 'border-gray-300 text-gray-700 hover:bg-gray-100'
             }`}
           >
             Next
-            <ChevronRight size={16} />
+            <ChevronRight size={14} />
           </button>
         </div>
       )}
@@ -357,53 +347,50 @@ export default function SelfHarmCopingStrategiesManagement() {
   // Card View Component (Mobile/Tablet)
   const CardView = () => (
     <div className="md:hidden">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
         {currentStrategies.map((s, index) => (
           s && s.category && s.color !== undefined && s.icon && Array.isArray(s.tips) && s.tips.length > 0 ? (
-            <div key={s.id} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-              <div className="p-6">
-                {/* Strategy Header */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-start gap-3 flex-1 min-w-0">
-                    <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white flex-shrink-0">
-                      <Heart size={20} />
+            <div key={s.id} className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+              <div className="p-4">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-start gap-2 flex-1 min-w-0">
+                    <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center text-white flex-shrink-0">
+                      <Heart size={16} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 truncate text-sm" title={s.category}>
+                      <h3 className="font-semibold text-gray-900 truncate text-xs" title={s.category}>
                         {s.category}
                       </h3>
-                      <p className="text-xs text-gray-500">Icon: {s.icon}</p>
+                      <p className="text-[10px] text-gray-500">Icon: {s.icon}</p>
                     </div>
                   </div>
-                  {/* Action Buttons */}
-                  <div className="flex gap-1 flex-shrink-0">
+                  <div className="flex gap-0.5 flex-shrink-0">
                     <button
                       onClick={() => handleView(s)}
-                      className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                      className="p-1 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                       title="View strategy"
                     >
-                      <Eye size={14} />
+                      <Eye size={12} />
                     </button>
                     <button
                       onClick={() => handleEdit(s)}
-                      className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                      className="p-1 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                       title="Edit strategy"
                     >
-                      <Edit size={14} />
+                      <Edit size={12} />
                     </button>
                     <button
                       onClick={() => handleDelete(s.id)}
-                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                       title="Delete strategy"
                     >
-                      <Trash2 size={14} />
+                      <Trash2 size={12} />
                     </button>
                   </div>
                 </div>
-                {/* Strategy Tips */}
-                <div className="mb-4">
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    {truncateText(s.tips.join(", "), 120)}
+                <div className="mb-3">
+                  <p className="text-xs text-gray-600 leading-relaxed">
+                    {truncateText(s.tips.join(", "), 80)}
                   </p>
                 </div>
               </div>
@@ -411,9 +398,7 @@ export default function SelfHarmCopingStrategiesManagement() {
           ) : null
         ))}
       </div>
-      
-      {/* Pagination for Cards */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         <PaginationComponent />
       </div>
     </div>
@@ -421,78 +406,78 @@ export default function SelfHarmCopingStrategiesManagement() {
 
   // Table View Component (Desktop)
   const TableView = () => (
-    <div className="hidden md:block bg-white rounded-xl shadow-sm border border-gray-200">
+    <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-200">
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Icon</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Color</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tips</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">#</th>
+              <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">Category</th>
+              <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">Icon</th>
+              <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">Color</th>
+              <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">Tips</th>
+              <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {currentStrategies.map((s, index) => (
               s && s.category && s.color !== undefined && s.icon && Array.isArray(s.tips) && s.tips.length > 0 ? (
                 <tr key={s.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-2 whitespace-nowrap">
-                    <span className="text-sm font-mono text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                  <td className="px-4 py-1.5 whitespace-nowrap">
+                    <span className="text-xs font-mono text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">
                       {startIndex + index + 1}
                     </span>
                   </td>
-                  <td className="px-6 py-2 whitespace-nowrap">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white">
-                        <Heart size={16} />
+                  <td className="px-4 py-1.5 whitespace-nowrap">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center text-white">
+                        <Heart size={14} />
                       </div>
-                      <div className="max-w-48">
-                        <div className="font-medium text-gray-900 truncate" title={s.category}>
+                      <div className="max-w-40">
+                        <div className="font-medium text-gray-900 truncate text-xs" title={s.category}>
                           {s.category}
                         </div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-2 whitespace-nowrap">
-                    <span className="text-sm text-gray-600">{s.icon}</span>
+                  <td className="px-4 py-1.5 whitespace-nowrap">
+                    <span className="text-xs text-gray-600">{s.icon}</span>
                   </td>
-                  <td className="px-6 py-2 whitespace-nowrap">
+                  <td className="px-4 py-1.5 whitespace-nowrap">
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full" style={{ backgroundColor: s.color }}></div>
-                      <span className="text-sm text-gray-600">{s.color}</span>
+                      <div className="w-5 h-5 rounded-full" style={{ backgroundColor: s.color }}></div>
+                      <span className="text-xs text-gray-600">{s.color}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-2">
+                  <td className="px-4 py-1.5">
                     <div className="max-w-xs">
-                      <p className="text-sm text-gray-600 truncate" title={s.tips.join(", ")}>
-                        {truncateText(s.tips.join(", "), 60)}
+                      <p className="text-xs text-gray-600 truncate" title={s.tips.join(", ")}>
+                        {truncateText(s.tips.join(", "), 50)}
                       </p>
                     </div>
                   </td>
-                  <td className="px-6 py-2 whitespace-nowrap">
-                    <div className="flex items-center gap-2">
+                  <td className="px-4 py-1.5 whitespace-nowrap">
+                    <div className="flex items-center gap-1">
                       <button
                         onClick={() => handleView(s)}
-                        className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                        className="p-1 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                         title="View Details"
                       >
-                        <Eye size={16} />
+                        <Eye size={14} />
                       </button>
                       <button
                         onClick={() => handleEdit(s)}
-                        className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                        className="p-1 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                         title="Edit"
                       >
-                        <Edit size={16} />
+                        <Edit size={14} />
                       </button>
                       <button
                         onClick={() => handleDelete(s.id)}
-                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         title="Delete"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </td>
@@ -507,73 +492,73 @@ export default function SelfHarmCopingStrategiesManagement() {
   );
 
   return (
-    <div className="bg-gray-50 p-4  sm:p-6 lg:p-8">
+    <div className="bg-gray-50 p-3 sm:p-4 lg:p-6">
       <div className="h-full overflow-y-auto mx-auto">
         {/* Header Section */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-indigo-600 rounded-lg">
-              <Heart className="w-6 h-6 text-white" />
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="p-1.5 bg-primary-600 rounded-lg">
+              <Heart className="w-5 h-5 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900">Self-Harm Coping Strategies Management</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Self-Harm Coping Strategies Management</h1>
           </div>
-          <p className="text-gray-600">Manage and organize self-harm coping strategies</p>
+          <p className="text-sm text-gray-600">Manage and organize self-harm coping strategies</p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-indigo-100 rounded-lg">
-                <FileText className="h-6 w-6 text-indigo-600" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary-100 rounded-lg">
+                <FileText className="h-5 w-5 text-primary-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">Total Strategies</p>
-                <p className="text-2xl font-bold text-gray-900">{strategies.length}</p>
+                <p className="text-xs font-medium text-gray-500">Total Strategies</p>
+                <p className="text-xl font-bold text-gray-900">{strategies.length}</p>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-green-100 rounded-lg">
-                <BookOpen className="h-6 w-6 text-green-600" />
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-green-100 rounded-lg">
+                <BookOpen className="h-5 w-5 text-green-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">Filtered Strategies</p>
-                <p className="text-2xl font-bold text-gray-900">{filteredStrategies.length}</p>
+                <p className="text-xs font-medium text-gray-500">Filtered Strategies</p>
+                <p className="text-xl font-bold text-gray-900">{filteredStrategies.length}</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Search and Actions Bar */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6 p-6">
-          <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-4 p-4">
+          <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
             <div className="relative flex-grow max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
                 placeholder="Search strategies by category, icon, or tips..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-sm"
               />
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               <button
                 onClick={() => fetchStrategies(true)}
                 disabled={isRefreshing}
-                className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2.5 rounded-lg font-medium transition-colors shadow-sm disabled:opacity-50"
+                className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg font-medium transition-colors shadow-sm disabled:opacity-50 text-sm"
               >
-                <RefreshCw size={18} className={isRefreshing ? 'animate-spin' : ''} />
+                <RefreshCw size={16} className={isRefreshing ? 'animate-spin' : ''} />
                 Refresh
               </button>
               <button
                 onClick={openModal}
                 disabled={isLoading}
-                className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white px-4 py-2.5 rounded-lg font-medium transition-colors shadow-sm"
+                className="flex items-center gap-1 bg-primary-600 hover:bg-primary-700 disabled:bg-primary-400 text-white px-3 py-2 rounded-lg font-medium transition-colors shadow-sm text-sm"
               >
-                <Plus size={20} />
+                <Plus size={16} />
                 Add Strategy
               </button>
             </div>
@@ -582,25 +567,25 @@ export default function SelfHarmCopingStrategiesManagement() {
 
         {/* Loading State */}
         {isLoading && !isRefreshing ? (
-          <div className="text-center py-12">
-            <div className="inline-flex items-center gap-3">
-              <RefreshCw className="w-5 h-5 animate-spin text-indigo-600" />
-              <p className="text-gray-600">Loading strategies...</p>
+          <div className="text-center py-8">
+            <div className="inline-flex items-center gap-2">
+              <RefreshCw className="w-4 h-4 animate-spin text-primary-600" />
+              <p className="text-sm text-gray-600">Loading strategies...</p>
             </div>
           </div>
         ) : filteredStrategies.length === 0 ? (
-          <div className="text-center py-12">
-            <Heart className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No strategies found</h3>
-            <p className="text-gray-600 mb-4">
+          <div className="text-center py-8">
+            <Heart className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+            <h3 className="text-base font-medium text-gray-900 mb-1">No strategies found</h3>
+            <p className="text-sm text-gray-600 mb-3">
               {searchTerm ? 'Try adjusting your search terms.' : 'Get started by adding your first strategy.'}
             </p>
             {!searchTerm && (
               <button
                 onClick={openModal}
-                className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                className="inline-flex items-center gap-1 bg-primary-600 hover:bg-primary-700 text-white px-3 py-2 rounded-lg font-medium transition-colors text-sm"
               >
-                <Plus size={20} />
+                <Plus size={16} />
                 Add First Strategy
               </button>
             )}
@@ -614,30 +599,30 @@ export default function SelfHarmCopingStrategiesManagement() {
 
         {/* Add/Edit Modal */}
         {isModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 transform transition-all duration-200">
-              <div className="px-6 py-4 border-b border-gray-100">
+          <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-3">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 transform transition-all duration-200">
+              <div className="px-4 py-3 border-b border-gray-100">
                 <div className="flex justify-between items-center">
                   <div>
                     <h2 className="text-lg font-bold text-gray-900">
                       {editingStrategyId ? "Edit Strategy" : "Add New Strategy"}
                     </h2>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-xs text-gray-500">
                       {editingStrategyId ? "Update strategy details" : "Create a new coping strategy"}
                     </p>
                   </div>
                   <button
                     onClick={closeModal}
-                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
+                    className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
                   >
-                    <X size={20} />
+                    <X size={16} />
                   </button>
                 </div>
               </div>
-              <form onSubmit={handleSubmit} className="p-6">
-                <div className="space-y-4">
+              <form onSubmit={handleSubmit} className="p-4">
+                <div className="space-y-3">
                   <div>
-                    <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="category" className="block text-xs font-medium text-gray-700 mb-1">
                       Category <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -647,12 +632,12 @@ export default function SelfHarmCopingStrategiesManagement() {
                       required
                       value={category}
                       onChange={(e) => setCategory(e.target.value)}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-gray-900 placeholder-gray-400"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-sm placeholder-gray-400"
                       placeholder="Enter strategy category"
                     />
                   </div>
                   <div>
-                    <label htmlFor="color" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="color" className="block text-xs font-medium text-gray-700 mb-1">
                       Color <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -662,12 +647,12 @@ export default function SelfHarmCopingStrategiesManagement() {
                       required
                       value={color}
                       onChange={(e) => setColor(e.target.value)}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-gray-900 placeholder-gray-400"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-sm placeholder-gray-400"
                       placeholder="Enter color (e.g., #FF0000)"
                     />
                   </div>
                   <div>
-                    <label htmlFor="icon" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="icon" className="block text-xs font-medium text-gray-700 mb-1">
                       Icon <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -677,12 +662,12 @@ export default function SelfHarmCopingStrategiesManagement() {
                       required
                       value={icon}
                       onChange={(e) => setIcon(e.target.value)}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-gray-900 placeholder-gray-400"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-sm placeholder-gray-400"
                       placeholder="Enter icon name"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-xs font-medium text-gray-700 mb-1">
                       Tips <span className="text-red-500">*</span>
                     </label>
                     <div className="space-y-2">
@@ -691,47 +676,47 @@ export default function SelfHarmCopingStrategiesManagement() {
                           type="text"
                           value={newTip}
                           onChange={(e) => setNewTip(e.target.value)}
-                          className="flex-1 px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-gray-900 placeholder-gray-400"
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-sm placeholder-gray-400"
                           placeholder="Enter a new tip"
                         />
                         <button
                           type="button"
                           onClick={handleAddTip}
                           disabled={!newTip.trim()}
-                          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-indigo-300 disabled:cursor-not-allowed transition-colors"
+                          className="px-3 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:bg-primary-300 disabled:cursor-not-allowed transition-colors text-sm"
                         >
                           Add
                         </button>
                       </div>
-                      <ul className="space-y-2 max-h-40 overflow-y-auto">
+                      <ul className="space-y-2 max-h-32 overflow-y-auto">
                         {tips.map((tip, index) => (
                           <li key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded-lg">
-                            <span className="text-sm text-gray-700">{tip}</span>
+                            <span className="text-xs text-gray-700">{tip}</span>
                             <button
                               type="button"
                               onClick={() => handleRemoveTip(index)}
                               className="p-1 text-red-500 hover:text-red-700"
                             >
-                              <X size={16} />
+                              <X size={14} />
                             </button>
                           </li>
                         ))}
                       </ul>
                       {tips.length === 0 && (
-                        <p className="text-sm text-red-500">At least one tip is required</p>
+                        <p className="text-xs text-red-500">At least one tip is required</p>
                       )}
                     </div>
                   </div>
                 </div>
-                <div className="flex space-x-3 mt-6">
+                <div className="flex space-x-2 mt-4">
                   <button
                     type="submit"
                     disabled={isLoading || tips.length === 0}
-                    className="flex-1 bg-indigo-600 text-white py-2.5 px-4 rounded-lg font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-200 transition-all duration-200 disabled:bg-indigo-300 disabled:cursor-not-allowed"
+                    className="flex-1 bg-primary-600 text-white py-2 px-3 rounded-lg font-medium hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-200 transition-all duration-200 disabled:bg-primary-300 disabled:cursor-not-allowed text-sm"
                   >
                     {isLoading ? (
                       <span className="flex items-center justify-center">
-                        <RefreshCw className="w-4 h-4 animate-spin mr-2" />
+                        <RefreshCw className="w-4 h-4 animate-spin mr-1" />
                         {editingStrategyId ? 'Updating...' : 'Adding...'}
                       </span>
                     ) : (
@@ -741,7 +726,7 @@ export default function SelfHarmCopingStrategiesManagement() {
                   <button
                     type="button"
                     onClick={closeModal}
-                    className="flex-1 bg-gray-100 text-gray-700 py-2.5 px-4 rounded-lg font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-200 transition-all duration-200"
+                    className="flex-1 bg-gray-100 text-gray-700 py-2 px-3 rounded-lg font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-200 transition-all duration-200 text-sm"
                   >
                     Cancel
                   </button>
@@ -753,68 +738,67 @@ export default function SelfHarmCopingStrategiesManagement() {
 
         {/* View Modal */}
         {isViewModalOpen && selectedStrategy && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-hidden">
-              <div className="px-6 py-4 border-b border-gray-100">
+          <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-3">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-xl mx-4 max-h-[85vh] overflow-hidden">
+              <div className="px-4 py-3 border-b border-gray-100">
                 <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white">
-                      <Heart size={20} />
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center text-white">
+                      <Heart size={16} />
                     </div>
                     <div>
-                      <h2 className="text-xl font-bold text-gray-900">Strategy Details</h2>
-                      <p className="text-sm text-gray-500">View complete coping strategy information</p>
+                      <h2 className="text-lg font-bold text-gray-900">Strategy Details</h2>
+                      <p className="text-xs text-gray-500">View complete coping strategy information</p>
                     </div>
                   </div>
                   <button
                     onClick={() => setIsViewModalOpen(false)}
-                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
+                    className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
                   >
-                    <X size={20} />
+                    <X size={16} />
                   </button>
                 </div>
               </div>
-              <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-                <div className="space-y-6">
+              <div className="p-4 overflow-y-auto max-h-[calc(85vh-100px)]">
+                <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-500 mb-2">Category</label>
-                    <h3 className="text-2xl font-bold text-gray-900">{selectedStrategy.category || 'No category available'}</h3>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Category</label>
+                    <h3 className="text-xl font-bold text-gray-900">{selectedStrategy.category || 'No category available'}</h3>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-500 mb-2">Icon</label>
-                    <p className="text-gray-800">{selectedStrategy.icon || 'No icon available'}</p>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Icon</label>
+                    <p className="text-sm text-gray-800">{selectedStrategy.icon || 'No icon available'}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-500 mb-2">Color</label>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Color</label>
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full" style={{ backgroundColor: selectedStrategy.color || '#000000' }}></div>
-                      <p className="text-gray-800">{selectedStrategy.color || 'No color available'}</p>
+                      <div className="w-5 h-5 rounded-full" style={{ backgroundColor: selectedStrategy.color || '#000000' }}></div>
+                      <p className="text-sm text-gray-800">{selectedStrategy.color || 'No color available'}</p>
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-500 mb-2">Tips</label>
-                    <div className="bg-gray-50 rounded-lg p-4">
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Tips</label>
+                    <div className="bg-gray-50 rounded-lg p-3">
                       <ul className="list-disc list-inside space-y-2">
                         {selectedStrategy.tips && Array.isArray(selectedStrategy.tips) && selectedStrategy.tips.length > 0 ? (
                           selectedStrategy.tips.map((tip, index) => (
-                            <li key={index} className="text-gray-800">{tip}</li>
+                            <li key={index} className="text-sm text-gray-800">{tip}</li>
                           ))
                         ) : (
-                          <p className="text-gray-800">No tips available</p>
+                          <p className="text-sm text-gray-800">No tips available</p>
                         )}
                       </ul>
                     </div>
                   </div>
-                  
-                  <div className="flex gap-3 pt-6 border-t border-gray-200">
+                  <div className="flex gap-2 pt-4 border-t border-gray-200">
                     <button
                       onClick={() => {
                         setIsViewModalOpen(false);
                         handleEdit(selectedStrategy);
                       }}
-                      className="flex-1 flex items-center justify-center gap-2 bg-indigo-600 text-white py-2.5 px-4 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+                      className="flex-1 flex items-center justify-center gap-1 bg-primary-600 text-white py-2 px-3 rounded-lg font-medium hover:bg-primary-700 transition-colors text-sm"
                     >
-                      <Edit size={16} />
+                      <Edit size={14} />
                       Edit Strategy
                     </button>
                     <button
@@ -822,9 +806,9 @@ export default function SelfHarmCopingStrategiesManagement() {
                         setIsViewModalOpen(false);
                         handleDelete(selectedStrategy.id);
                       }}
-                      className="flex-1 flex items-center justify-center gap-2 bg-red-600 text-white py-2.5 px-4 rounded-lg font-medium hover:bg-red-700 transition-colors"
+                      className="flex-1 flex items-center justify-center gap-1 bg-red-600 text-white py-2 px-3 rounded-lg font-medium hover:bg-red-700 transition-colors text-sm"
                     >
-                      <Trash2 size={16} />
+                      <Trash2 size={14} />
                       Delete Strategy
                     </button>
                   </div>

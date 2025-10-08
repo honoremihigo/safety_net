@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Users, Search, RefreshCw, Mail, User, Calend
 import { getAllUsers } from "../services/usersServices";
 import { isAuthenticated } from "../services/authService";
 import { useNavigate } from "react-router-dom";
+import Swal from 'sweetalert2';
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
@@ -11,8 +12,7 @@ export default function UserManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [notification, setNotification] = useState(null);
-  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [itemsPerPage] = useState(5);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,11 +25,12 @@ export default function UserManagement() {
 
   useEffect(() => {
     const filtered = users.filter(user =>
-      `${user.firstName} ${user.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email?.toLowerCase().includes(searchTerm.toLowerCase())
+      user && (user.firstName || user.lastName || user.email) &&
+      (`${user.firstName || ''} ${user.lastName || ''}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       user.email?.toLowerCase().includes(searchTerm.toLowerCase()))
     );
     setFilteredUsers(filtered);
-    setCurrentPage(1); // Reset to first page when filtering
+    setCurrentPage(1);
   }, [searchTerm, users]);
 
   const fetchUsers = async (showRefreshLoader = false) => {
@@ -41,23 +42,55 @@ export default function UserManagement() {
     
     try {
       const fetchedUsers = await getAllUsers();
-      setUsers(fetchedUsers);
-      setFilteredUsers(fetchedUsers);
+      const validUsers = fetchedUsers.filter(u => 
+        u && (u.firstName || u.lastName || u.email) && typeof u.id === 'string'
+      );
+      setUsers(validUsers);
+      setFilteredUsers(validUsers);
       
+      if (validUsers.length !== fetchedUsers.length) {
+        console.warn(`Filtered out ${fetchedUsers.length - validUsers.length} invalid users missing required fields`);
+      }
+
       if (showRefreshLoader) {
-        showNotification('Users refreshed successfully!');
+        Swal.fire({
+          icon: 'success',
+          title: 'Refreshed!',
+          text: 'Users refreshed successfully!',
+          position: 'center',
+          timer: 1500,
+          showConfirmButton: false
+        });
       }
     } catch (error) {
-      showNotification(`Failed to fetch users: ${error.message}`, 'error');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: `Failed to fetch users: ${error.message}`,
+        position: 'center',
+        confirmButtonColor: '#6366f1'
+      });
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
     }
   };
 
-  const showNotification = (message, type = 'success') => {
-    setNotification({ message, type });
-    setTimeout(() => setNotification(null), 4000);
+  const formatDate = (dateField) => {
+    if (!dateField) return 'Unknown';
+    const date = dateField.toDate ? dateField.toDate() : new Date(dateField);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const getInitials = (firstName, lastName, email) => {
+    if (firstName || lastName) {
+      return `${firstName?.[0]?.toUpperCase() || ''}${lastName?.[0]?.toUpperCase() || ''}`;
+    }
+    return email?.[0]?.toUpperCase() || '?';
   };
 
   // Pagination calculations
@@ -73,7 +106,6 @@ export default function UserManagement() {
     let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
     let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
     
-    // Adjust start page if we're near the end
     if (endPage - startPage < maxVisiblePages - 1) {
       startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
@@ -100,24 +132,11 @@ export default function UserManagement() {
     }
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return 'Unknown';
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
-  const getInitials = (firstName, lastName) => {
-    return `${firstName?.[0]?.toUpperCase() || ''}${lastName?.[0]?.toUpperCase() || ''}`;
-  };
-
   // Pagination Component
   const PaginationComponent = () => (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-gray-200 bg-gray-50">
-      <div className="flex items-center gap-4">
-        <p className="text-sm text-gray-600">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-gray-200 bg-gray-50">
+      <div className="flex items-center gap-3">
+        <p className="text-xs text-gray-600">
           Showing {startIndex + 1} to {Math.min(endIndex, filteredUsers.length)} of {filteredUsers.length} entries
         </p>
       </div>
@@ -127,22 +146,22 @@ export default function UserManagement() {
           <button
             onClick={handlePreviousPage}
             disabled={currentPage === 1}
-            className={`flex items-center gap-1 px-3 py-2 text-sm border rounded-md transition-colors ${
+            className={`flex items-center gap-1 px-2 py-1.5 text-xs border rounded-md transition-colors ${
               currentPage === 1
                 ? 'border-gray-200 text-gray-400 cursor-not-allowed'
                 : 'border-gray-300 text-gray-700 hover:bg-gray-100'
             }`}
           >
-            <ChevronLeft size={16} />
+            <ChevronLeft size={14} />
             Previous
           </button>
           
-          <div className="flex items-center gap-1 mx-2">
+          <div className="flex items-center gap-1 mx-1">
             {getPageNumbers().map((page) => (
               <button
                 key={page}
                 onClick={() => handlePageChange(page)}
-                className={`px-3 py-2 text-sm rounded-md transition-colors ${
+                className={`px-2 py-1 text-xs rounded-md transition-colors ${
                   currentPage === page
                     ? 'bg-primary-600 text-white'
                     : 'border border-gray-300 text-gray-700 hover:bg-gray-100'
@@ -156,14 +175,14 @@ export default function UserManagement() {
           <button
             onClick={handleNextPage}
             disabled={currentPage === totalPages}
-            className={`flex items-center gap-1 px-3 py-2 text-sm border rounded-md transition-colors ${
+            className={`flex items-center gap-1 px-2 py-1.5 text-xs border rounded-md transition-colors ${
               currentPage === totalPages
                 ? 'border-gray-200 text-gray-400 cursor-not-allowed'
                 : 'border-gray-300 text-gray-700 hover:bg-gray-100'
             }`}
           >
             Next
-            <ChevronRight size={16} />
+            <ChevronRight size={14} />
           </button>
         </div>
       )}
@@ -173,61 +192,55 @@ export default function UserManagement() {
   // Card View Component (Mobile/Tablet)
   const CardView = () => (
     <div className="md:hidden">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
         {currentUsers.map((user, index) => (
-          <div key={user.id} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-            <div className="p-6">
-              {/* User Header */}
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-lg">
-                    {getInitials(user.firstName, user.lastName)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900 truncate" title={`${user.firstName} ${user.lastName}`}>
-                      {user.firstName} {user.lastName}
-                    </h3>
-                    <div className="flex items-center gap-1 mt-1">
-                      <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                      <span className="text-xs text-gray-500">Active</span>
+          user && (user.firstName || user.lastName || user.email) ? (
+            <div key={user.id} className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+              <div className="p-4">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center text-white font-semibold text-xs">
+                      {getInitials(user.firstName, user.lastName, user.email)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-900 truncate text-xs" title={`${user.firstName || ''} ${user.lastName || ''}`}>
+                        {user.firstName || user.lastName ? `${user.firstName || ''} ${user.lastName || ''}` : user.email || 'Unknown'}
+                      </h3>
+                      <div className="flex items-center gap-1 mt-1">
+                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                        <span className="text-[10px] text-gray-500">Active</span>
+                      </div>
                     </div>
                   </div>
+                  <button
+                    className="p-1 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                    title="View user details"
+                  >
+                    <Eye size={12} />
+                  </button>
                 </div>
-                {/* Action Button */}
-                <button
-                  className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                  title="View user details"
-                >
-                  <Eye size={16} />
-                </button>
-              </div>
-
-              {/* User Details */}
-              <div className="space-y-2 mb-4">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Mail size={14} />
-                  <span className="truncate">{user.email || 'No email'}</span>
+                <div className="space-y-2 mb-3">
+                  <div className="flex items-center gap-2 text-xs text-gray-600">
+                    <Mail size={12} />
+                    <span className="truncate">{user.email || 'No email'}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-gray-600">
+                    <User size={12} />
+                    <span>User ID: {user.id}</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <User size={14} />
-                  <span>User ID: {user.id}</span>
-                </div>
-              </div>
-
-              {/* Footer */}
-              <div className="pt-4 border-t border-gray-100">
-                <div className="flex items-center gap-2 text-xs text-gray-500">
-                  <Calendar size={12} />
-                  <span>Joined {formatDate(user.createdAt)}</span>
+                <div className="pt-3 border-t border-gray-100">
+                  <div className="flex items-center gap-2 text-[10px] text-gray-500">
+                    <Calendar size={12} />
+                    <span>Joined {formatDate(user.createdAt)}</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          ) : null
         ))}
       </div>
-      
-      {/* Pagination for Cards */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         <PaginationComponent />
       </div>
     </div>
@@ -235,164 +248,137 @@ export default function UserManagement() {
 
   // Table View Component (Desktop)
   const TableView = () => (
-    <div className="hidden md:block bg-white rounded-xl shadow-sm border border-gray-200">
+    <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-200">
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-             
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">#</th>
+              <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">User</th>
+              <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">Email</th>
+              <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">Joined</th>
+              <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {currentUsers.map((user, index) => (
-              <tr key={user.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-2 whitespace-nowrap">
-                  <span className="text-sm font-mono text-gray-600 bg-gray-100 px-2 py-1 rounded">
-                    {startIndex + index + 1}
-                  </span>
-                </td>
-                
-                <td className="px-6 py-2 whitespace-nowrap">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br capitalize from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-                      {getInitials(user.firstName, user.lastName )} {getInitials(user.lastName || user.firstName ? '' :  user.email) }
-                    </div>
-                    <div>
-                      <div className="font-medium text-gray-900">
-                        {user.firstName} {user.lastName} {user.lastName || user.firstName ? '' : '(Unknown)'}
-                      </div>
-                      <div className="flex items-center gap-1 mt-1">
-                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                        <span className="text-xs text-gray-500">Active</span>
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                
-                <td className="px-6 py-2 whitespace-nowrap">
-                  <div className="flex items-center gap-2 text-sm text-gray-900">
-                    <Mail size={14} className="text-gray-400" />
-                    <span className="truncate max-w-48">{user.email || 'No email'}</span>
-                  </div>
-                </td>
-
-                
-                <td className="px-6 py-2 whitespace-nowrap">
-                  <div className="flex items-center gap-2">
-                    <Calendar size={14} className="text-gray-400" />
-                    <span className="text-sm text-gray-600">
-                      {formatDate(user.createdAt)}
+              user && (user.firstName || user.lastName || user.email) ? (
+                <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-4 py-1.5 whitespace-nowrap">
+                    <span className="text-xs font-mono text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">
+                      {startIndex + index + 1}
                     </span>
-                  </div>
-                </td>
-                
-                <td className="px-6 py-2 whitespace-nowrap">
-                  <div className="flex items-center gap-2">
-                    <button
-                      className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                      title="View Details"
-                    >
-                      <Eye size={16} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
+                  </td>
+                  <td className="px-4 py-1.5 whitespace-nowrap">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center text-white font-semibold text-xs">
+                        {getInitials(user.firstName, user.lastName, user.email)}
+                      </div>
+                      <div>
+                        <div className="font-medium text-gray-900 text-xs truncate" title={`${user.firstName || ''} ${user.lastName || ''}`}>
+                          {user.firstName || user.lastName ? `${user.firstName || ''} ${user.lastName || ''}` : user.email || 'Unknown'}
+                        </div>
+                        <div className="flex items-center gap-1 mt-1">
+                          <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                          <span className="text-[10px] text-gray-500">Active</span>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-1.5 whitespace-nowrap">
+                    <div className="flex items-center gap-2 text-xs text-gray-900">
+                      <Mail size={12} className="text-gray-400" />
+                      <span className="truncate max-w-40">{user.email || 'No email'}</span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-1.5 whitespace-nowrap">
+                    <div className="flex items-center gap-2">
+                      <Calendar size={12} className="text-gray-400" />
+                      <span className="text-xs text-gray-600">
+                        {formatDate(user.createdAt)}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-1.5 whitespace-nowrap">
+                    <div className="flex items-center gap-1">
+                      <button
+                        className="p-1 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                        title="View Details"
+                      >
+                        <Eye size={14} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ) : null
             ))}
           </tbody>
         </table>
       </div>
-
-      {/* Table Pagination */}
       <PaginationComponent />
     </div>
   );
 
   return (
-    <div className="bg-gray-50 p-4 h-[100vh] sm:p-6 lg:p-8">
-      {/* Notification Toast */}
-      {notification && (
-        <div className={`fixed top-4 right-4 z-50 flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg ${
-          notification.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-        } animate-in slide-in-from-top-2 duration-300`}>
-          {notification.type === 'success' ? <Check size={16} /> : <AlertTriangle size={16} />}
-          {notification.message}
-        </div>
-      )}
-
+    <div className="bg-gray-50 p-3 sm:p-4 lg:p-6">
       <div className="h-full overflow-y-auto mx-auto">
         {/* Header Section */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-indigo-600 rounded-lg">
-              <Users className="w-6 h-6 text-white" />
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="p-1.5 bg-primary-600 rounded-lg">
+              <Users className="w-5 h-5 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
+            <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
           </div>
-          <p className="text-gray-600">Manage and view all registered users</p>
+          <p className="text-sm text-gray-600">Manage and view all registered users</p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-indigo-100 rounded-lg">
-                <Users className="h-6 w-6 text-indigo-600" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary-100 rounded-lg">
+                <Users className="h-5 w-5 text-primary-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">Total Users</p>
-                <p className="text-2xl font-bold text-gray-900">{users.length}</p>
+                <p className="text-xs font-medium text-gray-500">Total Users</p>
+                <p className="text-xl font-bold text-gray-900">{users.length}</p>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-purple-100 rounded-lg">
-                <Mail className="h-6 w-6 text-purple-600" />
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-green-100 rounded-lg">
+                <User className="h-5 w-5 text-green-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">Active Users</p>
-                <p className="text-2xl font-bold text-gray-900">{filteredUsers.length}</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-green-100 rounded-lg">
-                <User className="h-6 w-6 text-green-600" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-500">Current Page</p>
-                <p className="text-2xl font-bold text-gray-900">{currentPage} of {totalPages}</p>
+                <p className="text-xs font-medium text-gray-500">Filtered Users</p>
+                <p className="text-xl font-bold text-gray-900">{filteredUsers.length}</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Search and Actions Bar */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6 p-6">
-          <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-4 p-4">
+          <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
             <div className="relative flex-grow max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
                 placeholder="Search users by name or email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-sm"
               />
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               <button
                 onClick={() => fetchUsers(true)}
                 disabled={isRefreshing}
-                className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2.5 rounded-lg font-medium transition-colors shadow-sm disabled:opacity-50"
+                className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg font-medium transition-colors shadow-sm disabled:opacity-50 text-sm"
               >
-                <RefreshCw size={18} className={isRefreshing ? 'animate-spin' : ''} />
+                <RefreshCw size={16} className={isRefreshing ? 'animate-spin' : ''} />
                 Refresh
               </button>
             </div>
@@ -401,18 +387,17 @@ export default function UserManagement() {
 
         {/* Loading State */}
         {isLoading && !isRefreshing ? (
-          <div className="text-center py-12">
-            <div className="inline-flex items-center gap-3">
-              <RefreshCw className="w-5 h-5 animate-spin text-indigo-600" />
-              <p className="text-gray-600">Loading users...</p>
+          <div className="text-center py-8">
+            <div className="inline-flex items-center gap-2">
+              <RefreshCw className="w-4 h-4 animate-spin text-primary-600" />
+              <p className="text-sm text-gray-600">Loading users...</p>
             </div>
           </div>
         ) : filteredUsers.length === 0 ? (
-          /* Empty State */
-          <div className="text-center py-12">
-            <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No users found</h3>
-            <p className="text-gray-600 mb-4">
+          <div className="text-center py-8">
+            <Users className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+            <h3 className="text-base font-medium text-gray-900 mb-1">No users found</h3>
+            <p className="text-sm text-gray-600 mb-3">
               {searchTerm ? 'Try adjusting your search terms.' : 'No users are currently registered in the system.'}
             </p>
           </div>
