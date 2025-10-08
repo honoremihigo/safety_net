@@ -1,24 +1,34 @@
 import { db } from "../config/firebase";
-import { collection, addDoc, getDocs, getDoc, updateDoc, deleteDoc, doc, serverTimestamp } from "firebase/firestore";
+import { 
+  collection, 
+  addDoc, 
+  getDocs, 
+  getDoc, 
+  updateDoc, 
+  deleteDoc, 
+  doc, 
+  serverTimestamp 
+} from "firebase/firestore";
 
 // Add a new crisis message
 export const addCrisisMessage = async (messageData) => {
   try {
-    const { contact, email, firstName, lastName, message } = messageData;
-    if (!contact || !email || !firstName || !lastName || !message) {
-      throw new Error("Contact, email, firstName, lastName, and message are required");
-    }
-
     const messageRef = await addDoc(collection(db, "crisis_messages"), {
-      contact,
-      email,
-      firstName,
-      lastName,
-      message,
+      category: messageData.category,
+      email: messageData.email,
+      isAnonymous: messageData.isAnonymous,
+      isUrgent: messageData.isUrgent,
+      message: messageData.message,
+      name: messageData.name,
+      phone: messageData.phone,
+      rating: messageData.rating,
+      contact: messageData.contact || "",
+      firstName: messageData.firstName || "",
+      lastName: messageData.lastName || "",
       timestamp: serverTimestamp()
     });
 
-    return { id: messageRef.id, contact, email, firstName, lastName, message };
+    return { id: messageRef.id, ...messageData };
   } catch (error) {
     throw new Error(error.message || "Failed to add crisis message");
   }
@@ -29,11 +39,7 @@ export const getAllCrisisMessages = async () => {
   try {
     const messagesRef = collection(db, "crisis_messages");
     const querySnapshot = await getDocs(messagesRef);
-    const messages = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
-    return messages;
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   } catch (error) {
     throw new Error(error.message || "Failed to fetch crisis messages");
   }
@@ -54,24 +60,24 @@ export const getCrisisMessageById = async (id) => {
 };
 
 // Update a crisis message
-export const updateCrisisMessage = async (id, updatedData) => {
+export const updateCrisisMessage = async (id, messageData) => {
   try {
-    const { contact, email, firstName, lastName, message } = updatedData;
-    if (!contact || !email || !firstName || !lastName || !message) {
-      throw new Error("Contact, email, firstName, lastName, and message are required");
-    }
-
     const messageRef = doc(db, "crisis_messages", id);
     await updateDoc(messageRef, {
-      contact,
-      email,
-      firstName,
-      lastName,
-      message,
+      category: messageData.category,
+      email: messageData.email,
+      isAnonymous: messageData.isAnonymous,
+      isUrgent: messageData.isUrgent,
+      message: messageData.message,
+      name: messageData.name,
+      phone: messageData.phone,
+      rating: messageData.rating,
+      contact: messageData.contact || "",
+      firstName: messageData.firstName || "",
+      lastName: messageData.lastName || "",
       updatedAt: new Date().toISOString()
     });
-
-    return { id, contact, email, firstName, lastName, message };
+    return { id, ...messageData };
   } catch (error) {
     throw new Error(error.message || "Failed to update crisis message");
   }

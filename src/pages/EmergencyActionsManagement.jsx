@@ -414,12 +414,12 @@ export default function EmergencyActionsManagement() {
             {currentActions.map((a, index) => (
               a && a.action && a.contact && a.userId ? (
                 <tr key={a.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-2 whitespace-nowrap">
                     <span className="text-sm font-mono text-gray-600 bg-gray-100 px-2 py-1 rounded">
                       {startIndex + index + 1}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-2 whitespace-nowrap">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white">
                         <AlertTriangle size={16} />
@@ -431,17 +431,17 @@ export default function EmergencyActionsManagement() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-2 whitespace-nowrap">
                     <span className="text-sm text-gray-600">{a.contact}</span>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-2">
                     <div className="max-w-xs">
                       <p className="text-sm text-gray-600 truncate" title={a.userId}>
                         {truncateText(a.userId, 60)}
                       </p>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-2 whitespace-nowrap">
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleView(a)}
