@@ -50,7 +50,6 @@ export default function CrisisContactsManagement() {
     
     try {
       const fetchedContacts = await getAllCrisisContacts();
-      // Validate and filter contacts to ensure they have name, phone, and description
       const validContacts = fetchedContacts.filter(c => 
         c && typeof c.name === 'string' && typeof c.phone === 'string' && typeof c.description === 'string'
       );
@@ -274,9 +273,9 @@ export default function CrisisContactsManagement() {
 
   // Pagination Component
   const PaginationComponent = () => (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-gray-200 bg-gray-50">
-      <div className="flex items-center gap-4">
-        <p className="text-sm text-gray-600">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-gray-200 bg-gray-50">
+      <div className="flex items-center gap-3">
+        <p className="text-xs text-gray-600">
           Showing {startIndex + 1} to {Math.min(endIndex, filteredContacts.length)} of {filteredContacts.length} entries
         </p>
       </div>
@@ -286,24 +285,24 @@ export default function CrisisContactsManagement() {
           <button
             onClick={handlePreviousPage}
             disabled={currentPage === 1}
-            className={`flex items-center gap-1 px-3 py-2 text-sm border rounded-md transition-colors ${
+            className={`flex items-center gap-1 px-2 py-1.5 text-xs border rounded-md transition-colors ${
               currentPage === 1
                 ? 'border-gray-200 text-gray-400 cursor-not-allowed'
                 : 'border-gray-300 text-gray-700 hover:bg-gray-100'
             }`}
           >
-            <ChevronLeft size={16} />
+            <ChevronLeft size={14} />
             Previous
           </button>
           
-          <div className="flex items-center gap-1 mx-2">
+          <div className="flex items-center gap-1 mx-1">
             {getPageNumbers().map((page) => (
               <button
                 key={page}
                 onClick={() => handlePageChange(page)}
-                className={`px-3 py-2 text-sm rounded-md transition-colors ${
+                className={`px-2 py-1 text-xs rounded-md transition-colors ${
                   currentPage === page
-                    ? 'bg-indigo-600 text-white'
+                    ? 'bg-primary-600 text-white'
                     : 'border border-gray-300 text-gray-700 hover:bg-gray-100'
                 }`}
               >
@@ -315,14 +314,14 @@ export default function CrisisContactsManagement() {
           <button
             onClick={handleNextPage}
             disabled={currentPage === totalPages}
-            className={`flex items-center gap-1 px-3 py-2 text-sm border rounded-md transition-colors ${
+            className={`flex items-center gap-1 px-2 py-1.5 text-xs border rounded-md transition-colors ${
               currentPage === totalPages
                 ? 'border-gray-200 text-gray-400 cursor-not-allowed'
                 : 'border-gray-300 text-gray-700 hover:bg-gray-100'
             }`}
           >
             Next
-            <ChevronRight size={16} />
+            <ChevronRight size={14} />
           </button>
         </div>
       )}
@@ -332,53 +331,53 @@ export default function CrisisContactsManagement() {
   // Card View Component (Mobile/Tablet)
   const CardView = () => (
     <div className="md:hidden">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
         {currentContacts.map((c, index) => (
           c && c.name && c.phone && c.description ? (
-            <div key={c.id} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-              <div className="p-6">
+            <div key={c.id} className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+              <div className="p-4">
                 {/* Contact Header */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-start gap-3 flex-1 min-w-0">
-                    <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white flex-shrink-0">
-                      <Phone size={20} />
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-start gap-2 flex-1 min-w-0">
+                    <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center text-white flex-shrink-0">
+                      <Phone size={16} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 truncate text-sm" title={c.name}>
+                      <h3 className="font-semibold text-gray-900 truncate text-xs" title={c.name}>
                         {c.name}
                       </h3>
-                      <p className="text-xs text-gray-500">{c.phone}</p>
+                      <p className="text-[10px] text-gray-500">{c.phone}</p>
                     </div>
                   </div>
                   {/* Action Buttons */}
-                  <div className="flex gap-1 flex-shrink-0">
+                  <div className="flex gap-0.5 flex-shrink-0">
                     <button
                       onClick={() => handleView(c)}
-                      className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                      className="p-1 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                       title="View contact"
                     >
-                      <Eye size={14} />
+                      <Eye size={12} />
                     </button>
                     <button
                       onClick={() => handleEdit(c)}
-                      className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                      className="p-1 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                       title="Edit contact"
                     >
-                      <Edit size={14} />
+                      <Edit size={12} />
                     </button>
                     <button
                       onClick={() => handleDelete(c.id)}
-                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                       title="Delete contact"
                     >
-                      <Trash2 size={14} />
+                      <Trash2 size={12} />
                     </button>
                   </div>
                 </div>
                 {/* Contact Description */}
-                <div className="mb-4">
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    {truncateText(c.description, 120)}
+                <div className="mb-3">
+                  <p className="text-xs text-gray-600 leading-relaxed">
+                    {truncateText(c.description, 80)}
                   </p>
                 </div>
               </div>
@@ -388,7 +387,7 @@ export default function CrisisContactsManagement() {
       </div>
       
       {/* Pagination for Cards */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         <PaginationComponent />
       </div>
     </div>
@@ -396,71 +395,71 @@ export default function CrisisContactsManagement() {
 
   // Table View Component (Desktop)
   const TableView = () => (
-    <div className="hidden md:block bg-white rounded-xl shadow-sm border border-gray-200">
+    <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-200">
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">#</th>
+              <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">Name</th>
+              <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+              <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">Description</th>
+              <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {currentContacts.map((c, index) => (
               c && c.name && c.phone && c.description ? (
                 <tr key={c.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-2 whitespace-nowrap">
-                    <span className="text-sm font-mono text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                  <td className="px-4 py-1.5 whitespace-nowrap">
+                    <span className="text-xs font-mono text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">
                       {startIndex + index + 1}
                     </span>
                   </td>
-                  <td className="px-6 py-2 whitespace-nowrap">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white">
-                        <Phone size={16} />
+                  <td className="px-4 py-1.5 whitespace-nowrap">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center text-white">
+                        <Phone size={14} />
                       </div>
-                      <div className="max-w-48">
-                        <div className="font-medium text-gray-900 truncate" title={c.name}>
+                      <div className="max-w-40">
+                        <div className="font-medium text-gray-900 truncate text-xs" title={c.name}>
                           {c.name}
                         </div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-2 whitespace-nowrap">
-                    <span className="text-sm text-gray-600">{c.phone}</span>
+                  <td className="px-4 py-1.5 whitespace-nowrap">
+                    <span className="text-xs text-gray-600">{c.phone}</span>
                   </td>
-                  <td className="px-6 py-2">
+                  <td className="px-4 py-1.5">
                     <div className="max-w-xs">
-                      <p className="text-sm text-gray-600 truncate" title={c.description}>
-                        {truncateText(c.description, 60)}
+                      <p className="text-xs text-gray-600 truncate" title={c.description}>
+                        {truncateText(c.description, 50)}
                       </p>
                     </div>
                   </td>
-                  <td className="px-6 py-2 whitespace-nowrap">
-                    <div className="flex items-center gap-2">
+                  <td className="px-4 py-1.5 whitespace-nowrap">
+                    <div className="flex items-center gap-1">
                       <button
                         onClick={() => handleView(c)}
-                        className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                        className="p-1 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                         title="View Details"
                       >
-                        <Eye size={16} />
+                        <Eye size={14} />
                       </button>
                       <button
                         onClick={() => handleEdit(c)}
-                        className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                        className="p-1 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                         title="Edit"
                       >
-                        <Edit size={16} />
+                        <Edit size={14} />
                       </button>
                       <button
                         onClick={() => handleDelete(c.id)}
-                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         title="Delete"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </td>
@@ -475,73 +474,73 @@ export default function CrisisContactsManagement() {
   );
 
   return (
-    <div className="bg-gray-50 p-4  sm:p-6 lg:p-8">
+    <div className="bg-gray-50 p-3 sm:p-4 lg:p-6">
       <div className="h-full overflow-y-auto mx-auto">
         {/* Header Section */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-indigo-600 rounded-lg">
-              <Phone className="w-6 h-6 text-white" />
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="p-1.5 bg-primary-600 rounded-lg">
+              <Phone className="w-5 h-5 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900">Crisis Contacts Management</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Crisis Contacts Management</h1>
           </div>
-          <p className="text-gray-600">Manage and organize crisis contact information</p>
+          <p className="text-sm text-gray-600">Manage and organize crisis contact information</p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-indigo-100 rounded-lg">
-                <FileText className="h-6 w-6 text-indigo-600" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary-100 rounded-lg">
+                <FileText className="h-5 w-5 text-primary-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">Total Contacts</p>
-                <p className="text-2xl font-bold text-gray-900">{contacts.length}</p>
+                <p className="text-xs font-medium text-gray-500">Total Contacts</p>
+                <p className="text-xl font-bold text-gray-900">{contacts.length}</p>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-green-100 rounded-lg">
-                <BookOpen className="h-6 w-6 text-green-600" />
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-green-100 rounded-lg">
+                <BookOpen className="h-5 w-5 text-green-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">Filtered Contacts</p>
-                <p className="text-2xl font-bold text-gray-900">{filteredContacts.length}</p>
+                <p className="text-xs font-medium text-gray-500">Filtered Contacts</p>
+                <p className="text-xl font-bold text-gray-900">{filteredContacts.length}</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Search and Actions Bar */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6 p-6">
-          <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-4 p-4">
+          <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
             <div className="relative flex-grow max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
                 placeholder="Search contacts by name, phone, or description..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-sm"
               />
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               <button
                 onClick={() => fetchContacts(true)}
                 disabled={isRefreshing}
-                className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2.5 rounded-lg font-medium transition-colors shadow-sm disabled:opacity-50"
+                className="flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm disabled:opacity-50"
               >
-                <RefreshCw size={18} className={isRefreshing ? 'animate-spin' : ''} />
+                <RefreshCw size={16} className={isRefreshing ? 'animate-spin' : ''} />
                 Refresh
               </button>
               <button
                 onClick={openModal}
                 disabled={isLoading}
-                className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white px-4 py-2.5 rounded-lg font-medium transition-colors shadow-sm"
+                className="flex items-center gap-1.5 bg-primary-600 hover:bg-primary-700 disabled:bg-primary-400 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm"
               >
-                <Plus size={20} />
+                <Plus size={16} />
                 Add Contact
               </button>
             </div>
@@ -550,25 +549,25 @@ export default function CrisisContactsManagement() {
 
         {/* Loading State */}
         {isLoading && !isRefreshing ? (
-          <div className="text-center py-12">
-            <div className="inline-flex items-center gap-3">
-              <RefreshCw className="w-5 h-5 animate-spin text-indigo-600" />
-              <p className="text-gray-600">Loading contacts...</p>
+          <div className="text-center py-8">
+            <div className="inline-flex items-center gap-2">
+              <RefreshCw className="w-4 h-4 animate-spin text-primary-600" />
+              <p className="text-sm text-gray-600">Loading contacts...</p>
             </div>
           </div>
         ) : filteredContacts.length === 0 ? (
-          <div className="text-center py-12">
-            <Phone className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No contacts found</h3>
-            <p className="text-gray-600 mb-4">
+          <div className="text-center py-8">
+            <Phone className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+            <h3 className="text-base font-medium text-gray-900 mb-1">No contacts found</h3>
+            <p className="text-sm text-gray-600 mb-3">
               {searchTerm ? 'Try adjusting your search terms.' : 'Get started by adding your first contact.'}
             </p>
             {!searchTerm && (
               <button
                 onClick={openModal}
-                className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                className="inline-flex items-center gap-1.5 bg-primary-600 hover:bg-primary-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"
               >
-                <Plus size={20} />
+                <Plus size={16} />
                 Add First Contact
               </button>
             )}
@@ -582,30 +581,30 @@ export default function CrisisContactsManagement() {
 
         {/* Add/Edit Modal */}
         {isModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 transform transition-all duration-200">
-              <div className="px-6 py-4 border-b border-gray-100">
+          <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-3">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-sm mx-4 transform transition-all duration-200">
+              <div className="px-4 py-3 border-b border-gray-100">
                 <div className="flex justify-between items-center">
                   <div>
-                    <h2 className="text-lg font-bold text-gray-900">
+                    <h2 className="text-base font-bold text-gray-900">
                       {editingContactId ? "Edit Contact" : "Add New Contact"}
                     </h2>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-xs text-gray-500">
                       {editingContactId ? "Update contact details" : "Create a new crisis contact"}
                     </p>
                   </div>
                   <button
                     onClick={closeModal}
-                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
+                    className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
                   >
-                    <X size={20} />
+                    <X size={16} />
                   </button>
                 </div>
               </div>
-              <form onSubmit={handleSubmit} className="p-6">
-                <div className="space-y-4">
+              <form onSubmit={handleSubmit} className="p-4">
+                <div className="space-y-3">
                   <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="name" className="block text-xs font-medium text-gray-700 mb-0.5">
                       Name <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -615,12 +614,12 @@ export default function CrisisContactsManagement() {
                       required
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-gray-900 placeholder-gray-400"
+                      className="w-full px-2 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-sm placeholder-gray-400"
                       placeholder="Enter contact name"
                     />
                   </div>
                   <div>
-                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="phone" className="block text-xs font-medium text-gray-700 mb-0.5">
                       Phone <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -630,12 +629,12 @@ export default function CrisisContactsManagement() {
                       required
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-gray-900 placeholder-gray-400"
+                      className="w-full px-2 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-sm placeholder-gray-400"
                       placeholder="Enter contact phone number"
                     />
                   </div>
                   <div>
-                    <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="description" className="block text-xs font-medium text-gray-700 mb-0.5">
                       Description <span className="text-red-500">*</span>
                     </label>
                     <textarea
@@ -644,21 +643,21 @@ export default function CrisisContactsManagement() {
                       required
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-gray-900 placeholder-gray-400 resize-none"
+                      className="w-full px-2 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-sm placeholder-gray-400 resize-none"
                       placeholder="Enter contact description..."
-                      rows="4"
+                      rows="3"
                     />
                   </div>
                 </div>
-                <div className="flex space-x-3 mt-6">
+                <div className="flex space-x-2 mt-4">
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="flex-1 bg-indigo-600 text-white py-2.5 px-4 rounded-lg font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-200 transition-all duration-200 disabled:bg-indigo-300 disabled:cursor-not-allowed"
+                    className="flex-1 bg-primary-600 text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-200 transition-all duration-200 disabled:bg-primary-300 disabled:cursor-not-allowed"
                   >
                     {isLoading ? (
                       <span className="flex items-center justify-center">
-                        <RefreshCw className="w-4 h-4 animate-spin mr-2" />
+                        <RefreshCw className="w-3 h-3 animate-spin mr-1" />
                         {editingContactId ? 'Updating...' : 'Adding...'}
                       </span>
                     ) : (
@@ -668,7 +667,7 @@ export default function CrisisContactsManagement() {
                   <button
                     type="button"
                     onClick={closeModal}
-                    className="flex-1 bg-gray-100 text-gray-700 py-2.5 px-4 rounded-lg font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-200 transition-all duration-200"
+                    className="flex-1 bg-gray-100 text-gray-700 py-2 px-3 rounded-lg text-sm font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-200 transition-all duration-200"
                   >
                     Cancel
                   </button>
@@ -680,53 +679,52 @@ export default function CrisisContactsManagement() {
 
         {/* View Modal */}
         {isViewModalOpen && selectedContact && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-hidden">
-              <div className="px-6 py-4 border-b border-gray-100">
+          <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-3">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4 max-h-[85vh] overflow-hidden">
+              <div className="px-4 py-3 border-b border-gray-100">
                 <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white">
-                      <Phone size={20} />
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center text-white">
+                      <Phone size={16} />
                     </div>
                     <div>
-                      <h2 className="text-xl font-bold text-gray-900">Contact Details</h2>
-                      <p className="text-sm text-gray-500">View complete crisis contact information</p>
+                      <h2 className="text-lg font-bold text-gray-900">Contact Details</h2>
+                      <p className="text-xs text-gray-500">View complete crisis contact information</p>
                     </div>
                   </div>
                   <button
                     onClick={() => setIsViewModalOpen(false)}
-                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
+                    className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
                   >
-                    <X size={20} />
+                    <X size={16} />
                   </button>
                 </div>
               </div>
-              <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-                <div className="space-y-6">
+              <div className="p-4 overflow-y-auto max-h-[calc(85vh-100px)]">
+                <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-500 mb-2">Name</label>
-                    <h3 className="text-2xl font-bold text-gray-900">{selectedContact.name || 'No name available'}</h3>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Name</label>
+                    <h3 className="text-xl font-bold text-gray-900">{selectedContact.name || 'No name available'}</h3>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-500 mb-2">Phone</label>
-                    <p className="text-gray-800">{selectedContact.phone || 'No phone available'}</p>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Phone</label>
+                    <p className="text-sm text-gray-800">{selectedContact.phone || 'No phone available'}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-500 mb-2">Description</label>
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">{selectedContact.description || 'No description available'}</p>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Description</label>
+                    <div className="bg-gray-50 rounded-lg p-3">
+                      <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">{selectedContact.description || 'No description available'}</p>
                     </div>
                   </div>
-              
-                  <div className="flex gap-3 pt-6 border-t border-gray-200">
+                  <div className="flex gap-2 pt-4 border-t border-gray-200">
                     <button
                       onClick={() => {
                         setIsViewModalOpen(false);
                         handleEdit(selectedContact);
                       }}
-                      className="flex-1 flex items-center justify-center gap-2 bg-indigo-600 text-white py-2.5 px-4 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+                      className="flex-1 flex items-center justify-center gap-1.5 bg-primary-600 text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors"
                     >
-                      <Edit size={16} />
+                      <Edit size={14} />
                       Edit Contact
                     </button>
                     <button
@@ -734,9 +732,9 @@ export default function CrisisContactsManagement() {
                         setIsViewModalOpen(false);
                         handleDelete(selectedContact.id);
                       }}
-                      className="flex-1 flex items-center justify-center gap-2 bg-red-600 text-white py-2.5 px-4 rounded-lg font-medium hover:bg-red-700 transition-colors"
+                      className="flex-1 flex items-center justify-center gap-1.5 bg-red-600 text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
                     >
-                      <Trash2 size={16} />
+                      <Trash2 size={14} />
                       Delete Contact
                     </button>
                   </div>

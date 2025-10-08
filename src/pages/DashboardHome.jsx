@@ -231,7 +231,7 @@ const DashboardHome = () => {
 
           <div className="bg-white rounded-lg shadow-sm border p-4">
             <div className="flex items-center">
-              <Activity className="w-5 h-5 text-purple-500 mr-2" />
+              <Activity className="w-5 h-5 text-primary-500 mr-2" />
               <div>
                 <p className="text-xs text-gray-600">Emergency Actions</p>
                 <p className="text-lg font-semibold">{dashboardData.emergencyActions.length}</p>
@@ -241,7 +241,7 @@ const DashboardHome = () => {
 
           <div className="bg-white rounded-lg shadow-sm border p-4">
             <div className="flex items-center">
-              <MessageSquare className="w-5 h-5 text-indigo-500 mr-2" />
+              <MessageSquare className="w-5 h-5 text-primary-500 mr-2" />
               <div>
                 <p className="text-xs text-gray-600">Panic Attack Tips</p>
                 <p className="text-lg font-semibold">{dashboardData.panicAttackTips.length}</p>
@@ -302,8 +302,8 @@ const DashboardHome = () => {
                 {[
                   { name: 'General Tips', count: dashboardData.generalTips.length, color: 'blue' },
                   { name: 'Binge Eating', count: dashboardData.bingeEatingTips.length, color: 'green' },
-                  { name: 'Body Shape', count: dashboardData.bodyShapeTips.length, color: 'purple' },
-                  { name: 'Depression', count: dashboardData.depressionTips.length, color: 'indigo' },
+                  { name: 'Body Shape', count: dashboardData.bodyShapeTips.length, color: 'primary' },
+                  { name: 'Depression', count: dashboardData.depressionTips.length, color: 'primary' },
                   { name: 'Guilt', count: dashboardData.guiltTips.length, color: 'pink' },
                   { name: 'Failing', count: dashboardData.failingTips.length, color: 'yellow' }
                 ].map((category) => (
