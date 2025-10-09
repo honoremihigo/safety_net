@@ -40,6 +40,8 @@ import {
   UserX,
   MessageCircleReply,
   Calendar,
+  MessageSquareCode,
+  Video,
 } from "lucide-react";
 import { Outlet, useLocation } from "react-router-dom";
 import { Link } from "react-router-dom";
@@ -122,7 +124,17 @@ const AdminSidebar = ({
     { id: "self-harm-coping-strategies", label: "Self Harm Coping", icon: HeartHandshake, path: "/admin/self-harm-coping-strategies" },
     { id: "testimonials", label: "Testimonials", icon: Quote, path: "/admin/testimonials" },
     { id: "therapy", label: "Therapy Booking", icon: Calendar, path: "/admin/therapy-booking" },
-     { id: "feedback", label: "Feedback", icon: MessageCircle, path: "/admin/crisis-messages" },
+    {
+      id: "contacts",
+      label: "Feedback Management",
+      icon: MessageSquareCode,
+      isDropdown: true,
+      children: [
+        { id: "feedback", label: "Feedback ", icon: MessageCircle, path: "/admin/crisis-messages" },
+     { id: "feedback", label: "Feedback Video", icon: Video, path: "/admin/testimonials-video" },
+      ]
+    },
+    
   ];
 
   const SidebarItem = ({ item, isActive, onClick }) => (

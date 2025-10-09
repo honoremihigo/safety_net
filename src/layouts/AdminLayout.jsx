@@ -148,9 +148,9 @@ const AdminLayout = () => {
       <PWAInstallButton />
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col min-w-0 lg:ml-80">
+      <main className="flex-1 flex flex-col min-w-0 lg:ml-72">
         {/* Top Header */}
-        <header className="bg-white shadow-sm border-b px-4 lg:px-6 fixed top-0 left-0 right-0 lg:left-80 z-40">
+        <header className="bg-white shadow-sm border-b px-4 lg:px-6 fixed top-0 left-0 right-0 lg:left-72 z-40">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
               <button
