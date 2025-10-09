@@ -389,7 +389,7 @@ export default function TestimonialVideoManagement() {
                   <Eye size={14} />
                   View
                 </button>
-                {/* <button
+                <button
                   onClick={() => handleEdit(video)}
                   className="flex-1 flex items-center justify-center gap-1 p-2 text-xs text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                   title="Edit video"
@@ -404,7 +404,7 @@ export default function TestimonialVideoManagement() {
                 >
                   <Trash2 size={14} />
                   Delete
-                </button> */}
+                </button>
               </div>
             </div>
           </div>
@@ -483,7 +483,7 @@ export default function TestimonialVideoManagement() {
                       >
                         <Eye size={14} />
                       </button>
-                      {/* <button
+                      <button
                         onClick={() => handleEdit(video)}
                         className="p-1 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                         title="Edit"
@@ -496,7 +496,7 @@ export default function TestimonialVideoManagement() {
                         title="Delete"
                       >
                         <Trash2 size={14} />
-                      </button> */}
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -584,14 +584,14 @@ export default function TestimonialVideoManagement() {
                 <RefreshCw size={16} className={isRefreshing ? 'animate-spin' : ''} />
                 Refresh
               </button>
-              {/* <button
+              <button
                 onClick={openModal}
                 disabled={isLoading}
                 className="flex items-center gap-1 bg-primary-600 hover:bg-primary-700 disabled:bg-primary-400 text-white px-3 py-2 rounded-lg font-medium transition-colors shadow-sm text-sm"
               >
                 <Plus size={16} />
                 Add Video
-              </button> */}
+              </button>
             </div>
           </div>
         </div>
@@ -794,7 +794,7 @@ export default function TestimonialVideoManagement() {
                     </a>
                   </div>
                   
-                  {/* <div className="flex gap-2 pt-4 border-t border-gray-200">
+                  <div className="flex gap-2 pt-4 border-t border-gray-200">
                     <button
                       onClick={() => {
                         setIsViewModalOpen(false);
@@ -815,7 +815,7 @@ export default function TestimonialVideoManagement() {
                       <Trash2 size={14} />
                       Delete Video
                     </button>
-                  </div> */}
+                  </div>
                 </div>
               </div>
             </div>
