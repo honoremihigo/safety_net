@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight, BookOpen, FileText, Search, RefreshCw, Star, Eye, X } from "lucide-react";
-import { getAllTestimonials } from "../services/testimonialsService";
+import { ChevronLeft, ChevronRight, BookOpen, FileText, Search, RefreshCw, Star, Eye, X, Edit, Trash2 } from "lucide-react";
+import { getAllTestimonials, updateTestimonial, deleteTestimonial } from "../services/testimonialsService";
 import { isAuthenticated } from "../services/authService";
 import { useNavigate } from "react-router-dom";
 import Swal from 'sweetalert2';
@@ -11,7 +11,9 @@ export default function TestimonialsManagement() {
   const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedTestimonial, setSelectedTestimonial] = useState(null);
+  const [editFormData, setEditFormData] = useState({ name: '', content: '', rating: 0 });
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [itemsPerPage] = useState(5);
@@ -94,6 +96,99 @@ export default function TestimonialsManagement() {
     }
     setSelectedTestimonial(t);
     setIsViewModalOpen(true);
+  };
+
+  const handleEdit = (t) => {
+    if (!t || !t.content || !t.name || t.rating === undefined || !t.userId) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: 'Cannot edit testimonial: Missing required fields',
+        position: 'center',
+        confirmButtonColor: '#6366f1'
+      });
+      return;
+    }
+    setSelectedTestimonial(t);
+    setEditFormData({
+      name: t.name,
+      content: t.content,
+      rating: t.rating
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await updateTestimonial(selectedTestimonial.id, editFormData);
+      setTestimonials(testimonials.map(t =>
+        t.id === selectedTestimonial.id ? { ...t, ...editFormData } : t
+      ));
+      setIsEditModalOpen(false);
+      Swal.fire({
+        icon: 'success',
+        title: 'Updated!',
+        text: 'Testimonial updated successfully!',
+        position: 'center',
+        timer: 1500,
+        showConfirmButton: false
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: `Failed to update testimonial: ${error.message}`,
+        position: 'center',
+        confirmButtonColor: '#6366f1'
+      });
+    }
+  };
+
+  const handleDelete = (t) => {
+    if (!t || !t.id) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: 'Cannot delete testimonial: Invalid testimonial',
+        position: 'center',
+        confirmButtonColor: '#6366f1'
+      });
+      return;
+    }
+    
+    Swal.fire({
+      title: 'Are you sure?',
+      text: `Do you want to delete the testimonial from ${t.name}?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#6366f1',
+      cancelButtonColor: '#ef4444',
+      confirmButtonText: 'Yes, delete it!'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await deleteTestimonial(t.id);
+          setTestimonials(testimonials.filter(test => test.id !== t.id));
+          Swal.fire({
+            icon: 'success',
+            title: 'Deleted!',
+            text: 'Testimonial has been deleted.',
+            position: 'center',
+            timer: 1500,
+            showConfirmButton: false
+          });
+        } catch (error) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: `Failed to delete testimonial: ${error.message}`,
+            position: 'center',
+            confirmButtonColor: '#6366f1'
+          });
+        }
+      }
+    });
   };
 
   const formatDate = (dateField) => {
@@ -252,6 +347,20 @@ export default function TestimonialsManagement() {
                     >
                       <Eye size={12} />
                     </button>
+                    <button
+                      onClick={() => handleEdit(t)}
+                      className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      title="Edit testimonial"
+                    >
+                      <Edit size={12} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(t)}
+                      className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Delete testimonial"
+                    >
+                      <Trash2 size={12} />
+                    </button>
                   </div>
                 </div>
                 <div className="mb-3">
@@ -324,6 +433,14 @@ export default function TestimonialsManagement() {
                       >
                         <Eye size={14} />
                       </button>
+                   
+                      <button
+                        onClick={() => handleDelete(t)}
+                        className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Delete Testimonial"
+                      >
+                        <Trash2 size={14} />
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -347,7 +464,7 @@ export default function TestimonialsManagement() {
             </div>
             <h1 className="text-2xl font-bold text-gray-900">Testimonials Management</h1>
           </div>
-          <p className="text-sm text-gray-600">View and organize testimonials</p>
+          <p className="text-sm text-gray-600">View, edit, and delete testimonials</p>
         </div>
 
         {/* Stats Cards */}
@@ -472,6 +589,79 @@ export default function TestimonialsManagement() {
                     <p className="text-sm text-gray-800">
                       <span className="font-medium">Email:</span> {selectedTestimonial.user?.email || 'No email available'}
                     </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Edit Modal */}
+        {isEditModalOpen && selectedTestimonial && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-3">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-xl mx-4 max-h-[85vh] overflow-hidden">
+              <div className="px-4 py-3 border-b border-gray-100">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                  
+                    <div>
+                      <h2 className="text-lg font-bold text-gray-900">Edit Testimonial</h2>
+                      <p className="text-xs text-gray-500">Modify testimonial details</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setIsEditModalOpen(false)}
+                    className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              </div>
+              <div className="p-4 overflow-y-auto max-h-[calc(85vh-100px)]">
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Name</label>
+                    <input
+                      type="text"
+                      value={editFormData.name}
+                      onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Rating</label>
+                    <select
+                      value={editFormData.rating}
+                      onChange={(e) => setEditFormData({ ...editFormData, rating: parseInt(e.target.value) })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-sm"
+                    >
+                      {[1, 2, 3, 4, 5].map((value) => (
+                        <option key={value} value={value}>{value} Star{value !== 1 ? 's' : ''}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Content</label>
+                    <textarea
+                      value={editFormData.content}
+                      onChange={(e) => setEditFormData({ ...editFormData, content: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-sm"
+                      rows="5"
+                    />
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <button
+                      onClick={() => setIsEditModalOpen(false)}
+                      className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors text-sm"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleEditSubmit}
+                      className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors text-sm"
+                    >
+                      Save Changes
+                    </button>
                   </div>
                 </div>
               </div>

@@ -122,30 +122,16 @@ const AdminSidebar = ({
 
       ]
     },
-    {
-      id: "contacts",
-      label: "Crisis Management",
-      icon: Phone,
-      isDropdown: true,
-      children: [
-        { id: "crisis-contacts", label: "Crisis Contacts", icon: Contact, path: "/admin/crisis-contacts" },
-       
-        { id: "emergency-actions", label: "Emergency Actions", icon: ShieldAlert, path: "/admin/emergency-actions" },
-      ]
-    },
+
     // { id: "self-harm-coping-strategies", label: "Self Harm Coping", icon: HeartHandshake, path: "/admin/self-harm-coping-strategies" },
     { id: "testimonials", label: "Testimonials", icon: Quote, path: "/admin/testimonials" },
+      { id: "feedback", label: " Testimonial Videos", icon: Video, path: "/admin/testimonials-video" },
+   
     { id: "therapy", label: "Therapy Booking", icon: Calendar, path: "/admin/therapy-booking" },
-    {
-      id: "contacts",
-      label: "Feedback Management",
-      icon: MessageSquareCode,
-      isDropdown: true,
-      children: [
-        { id: "feedback", label: "Feedback ", icon: MessageCircle, path: "/admin/crisis-messages" },
-     { id: "feedback", label: "Feedback Video", icon: Video, path: "/admin/testimonials-video" },
-      ]
-    },
+  
+        { id: "feedback", label: "Feedback Management", icon: MessageSquareCode, path: "/admin/crisis-messages" },
+    
+
     
   ];
 
