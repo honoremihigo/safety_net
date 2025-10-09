@@ -40,6 +40,10 @@ import {
   UserX,
   MessageCircleReply,
   Calendar,
+  MessageSquareCode,
+  Video,
+  UserRoundSearch,
+  User,
 } from "lucide-react";
 import { Outlet, useLocation } from "react-router-dom";
 import { Link } from "react-router-dom";
@@ -90,7 +94,21 @@ const AdminSidebar = ({
 
   const navigationItems = [
     { id: "dashboard", label: "Dashboard", icon: Home, path: "/admin/dashboard" },
-    { id: "users", label: "Users", icon: Users, path: "/admin/users" },
+   
+    { 
+      id: "user-management", 
+      label: "User Management", 
+      icon: Users, 
+      isDropdown: true,
+      children: [
+        
+        { id: "users", label: "Users", icon: User, path: "/admin/users" },
+        { id: "users-activity", label: "Users Activities", icon: UserRoundSearch, path: "/admin/users-activities" },
+       
+
+      ]
+    },
+
     { 
       id: "tips", 
       label: "Tips Management", 
@@ -118,7 +136,17 @@ const AdminSidebar = ({
     // { id: "self-harm-coping-strategies", label: "Self Harm Coping", icon: HeartHandshake, path: "/admin/self-harm-coping-strategies" },
     { id: "testimonials", label: "Testimonials", icon: Quote, path: "/admin/testimonials" },
     { id: "therapy", label: "Therapy Booking", icon: Calendar, path: "/admin/therapy-booking" },
-     { id: "feedback", label: "Feedback", icon: MessageCircle, path: "/admin/crisis-messages" },
+    {
+      id: "contacts",
+      label: "Feedback Management",
+      icon: MessageSquareCode,
+      isDropdown: true,
+      children: [
+        { id: "feedback", label: "Feedback ", icon: MessageCircle, path: "/admin/crisis-messages" },
+     { id: "feedback", label: "Feedback Video", icon: Video, path: "/admin/testimonials-video" },
+      ]
+    },
+    
   ];
 
   const SidebarItem = ({ item, isActive, onClick }) => (

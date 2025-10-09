@@ -20,6 +20,8 @@ import SelfHarmCopingStrategiesManagement from "./pages/SelfHarmCopingStrategies
 import TestimonialsManagement from "./pages/TestimonialsManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
 import TherapyBookingsManagement from "./pages/TherapyBookingsManagement";
+import TestimonialVideoManagement from "./pages/TestimonialsVideoManagement";
+import UserActivitiesManagement from "./pages/UserActivitiesManagement";
 
 const LoginPage = lazy(() => import('./pages/auth/Login'))
 
@@ -105,12 +107,16 @@ const router = createBrowserRouter([
         element: (<SuspenseWrapper><TestimonialsManagement /></SuspenseWrapper>)
       },
       {
-        path: 'users',
-        element: (<SuspenseWrapper><UserManagement /></SuspenseWrapper>)
+        path: 'testimonials-video',
+        element: (<SuspenseWrapper><TestimonialVideoManagement /></SuspenseWrapper>)
       },
       {
         path: 'users',
         element: (<SuspenseWrapper><UserManagement /></SuspenseWrapper>)
+      },
+      {
+        path: 'users-activities',
+        element: (<SuspenseWrapper><UserActivitiesManagement /></SuspenseWrapper>)
       },
       {
         path: 'therapy-booking',
