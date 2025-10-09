@@ -1,5 +1,5 @@
 import { db } from "../config/firebase";
-import { collection, addDoc, getDocs, getDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
+import { collection, addDoc, getDocs, getDoc, updateDoc, deleteDoc, doc, query, where } from "firebase/firestore";
 
 // Add a new user
 export const addUser = async (userData) => {
@@ -49,7 +49,24 @@ export const getUserById = async (id) => {
   } catch (error) {
     throw new Error(error.message || "Failed to fetch user");
   }
+};// ✅ Get user activity logs by user ID
+export const getUserLogsById = async (userId) => {
+  try {
+    const logsRef = collection(db, "user_activity_logs");
+    const q = query(logsRef, where("userId", "==", userId));
+    const querySnapshot = await getDocs(q);
+
+    const logs = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    return logs;
+  } catch (error) {
+    throw new Error(error.message || "Failed to fetch user activity logs");
+  }
 };
+
 
 // Update a user
 export const updateUser = async (id, updatedData) => {

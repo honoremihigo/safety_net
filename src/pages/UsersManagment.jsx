@@ -1,9 +1,244 @@
 import React, { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight, Users, Search, RefreshCw, Mail, User, Calendar, Eye, AlertTriangle, Check } from "lucide-react";
-import { getAllUsers } from "../services/usersServices";
+import { ChevronLeft, ChevronRight, Users, Search, RefreshCw, Mail, User, Calendar, Eye, X, Check, AlertTriangle } from "lucide-react";
+import { getAllUsers, getUserLogsById } from "../services/usersServices";
 import { isAuthenticated } from "../services/authService";
 import { useNavigate } from "react-router-dom";
 import Swal from 'sweetalert2';
+
+const UserViewModal = ({ 
+  isOpen, 
+  onClose, 
+  selectedUser, 
+  userLogs = [], 
+  isLogsLoading = false,
+  logsPerPage = 5 
+}) => {
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const getInitials = (firstName, lastName, email) => {
+    if (firstName && lastName) {
+      return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+    }
+    if (email) {
+      return email.charAt(0).toUpperCase();
+    }
+    return '?';
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = dateString.toDate ? dateString.toDate() : new Date(dateString);
+    return date.toLocaleString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  // Pagination calculations
+  const totalPages = Math.ceil(userLogs.length / logsPerPage);
+  const indexOfLastLog = currentPage * logsPerPage;
+  const indexOfFirstLog = indexOfLastLog - logsPerPage;
+  const currentLogs = userLogs.slice(indexOfFirstLog, indexOfLastLog);
+
+  const goToPage = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const goToPrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  // Reset to page 1 when modal opens or user changes
+  useEffect(() => {
+    if (isOpen) {
+      setCurrentPage(1);
+    }
+  }, [isOpen, selectedUser?.id]);
+
+  if (!isOpen || !selectedUser) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-3">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-xl mx-4 max-h-[85vh] overflow-hidden">
+        {/* Header */}
+        <div className="px-4 py-3 border-b border-gray-100">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center text-white font-semibold text-xs">
+                {getInitials(selectedUser.firstName, selectedUser.lastName, selectedUser.email)}
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-gray-900">User Details</h2>
+                <p className="text-xs text-gray-500">View user information and activity logs</p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-4 overflow-y-auto max-h-[calc(85vh-100px)]">
+          <div className="space-y-4">
+            {/* Name */}
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1">Name</label>
+              <h3 className="text-xl font-bold text-gray-900">
+                {selectedUser.firstName || selectedUser.lastName
+                  ? `${selectedUser.firstName || ''} ${selectedUser.lastName || ''}`.trim()
+                  : selectedUser.email || 'Unknown'}
+              </h3>
+            </div>
+
+            {/* Email */}
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1">Email</label>
+              <p className="text-sm text-gray-800">{selectedUser.email || 'No email'}</p>
+            </div>
+
+            {/* User ID */}
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1">User ID</label>
+              <p className="text-sm text-gray-800 font-mono">{selectedUser.id}</p>
+            </div>
+
+            {/* Joined Date */}
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1">Joined</label>
+              <p className="text-sm text-gray-800">{formatDate(selectedUser.createdAt)}</p>
+            </div>
+
+            {/* Activity Logs Section */}
+            <div className="pt-4 border-t border-gray-200">
+              <div className="flex justify-between items-center mb-2">
+                <label className="block text-xs font-medium text-gray-500">Activity Logs</label>
+                {userLogs.length > 0 && !isLogsLoading && (
+                  <span className="text-xs text-gray-500">
+                    {userLogs.length} {userLogs.length === 1 ? 'entry' : 'entries'}
+                  </span>
+                )}
+              </div>
+
+              {/* Loading State */}
+              {isLogsLoading ? (
+                <div className="text-center py-4">
+                  <div className="inline-flex items-center gap-2">
+                    <RefreshCw className="w-4 h-4 animate-spin text-primary-600" />
+                    <p className="text-sm text-gray-600">Loading logs...</p>
+                  </div>
+                </div>
+              ) : userLogs.length === 0 ? (
+                /* Empty State */
+                <div className="text-center py-4">
+                  <AlertTriangle className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                  <p className="text-sm text-gray-600">No activity logs found for this user.</p>
+                </div>
+              ) : (
+                <>
+                  {/* Logs List */}
+                  <div className="space-y-3 mb-4">
+                    {currentLogs.map((log) => (
+                      <div
+                        key={log.id}
+                        className="bg-gray-50 rounded-lg p-3 border border-gray-200 hover:border-gray-300 transition-colors"
+                      >
+                        <div className="flex items-start gap-2">
+                          <div className="p-1.5 bg-primary-100 rounded-lg flex-shrink-0">
+                            <Check size={14} className="text-primary-600" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900">
+                              {log.action || 'Unknown Action'}
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              {log.details || 'No details'}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {formatDate(log.timestamp)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Pagination Controls */}
+                  {totalPages > 1 && (
+                    <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+                      <p className="text-xs text-gray-600">
+                        Showing {indexOfFirstLog + 1} to {Math.min(indexOfLastLog, userLogs.length)} of {userLogs.length}
+                      </p>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={goToPrevPage}
+                          disabled={currentPage === 1}
+                          className={`p-1.5 rounded-lg transition-colors ${
+                            currentPage === 1
+                              ? 'text-gray-300 cursor-not-allowed'
+                              : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                          }`}
+                          aria-label="Previous page"
+                        >
+                          <ChevronLeft size={16} />
+                        </button>
+                        
+                        <div className="flex gap-1">
+                          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                            <button
+                              key={page}
+                              onClick={() => goToPage(page)}
+                              className={`min-w-[28px] h-7 px-2 text-xs font-medium rounded-lg transition-colors ${
+                                currentPage === page
+                                  ? 'bg-primary-600 text-white'
+                                  : 'text-gray-600 hover:bg-gray-100'
+                              }`}
+                              aria-label={`Page ${page}`}
+                              aria-current={currentPage === page ? 'page' : undefined}
+                            >
+                              {page}
+                            </button>
+                          ))}
+                        </div>
+
+                        <button
+                          onClick={goToNextPage}
+                          disabled={currentPage === totalPages}
+                          className={`p-1.5 rounded-lg transition-colors ${
+                            currentPage === totalPages
+                              ? 'text-gray-300 cursor-not-allowed'
+                              : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                          }`}
+                          aria-label="Next page"
+                        >
+                          <ChevronRight size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
@@ -12,6 +247,10 @@ export default function UserManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [userLogs, setUserLogs] = useState([]);
+  const [isLogsLoading, setIsLogsLoading] = useState(false);
   const [itemsPerPage] = useState(5);
   const navigate = useNavigate();
 
@@ -76,6 +315,48 @@ export default function UserManagement() {
     }
   };
 
+  const fetchUserLogs = async (userId) => {
+    setIsLogsLoading(true);
+    try {
+      const logs = await getUserLogsById(userId);
+      setUserLogs(logs);
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: `Failed to fetch user logs: ${error.message}`,
+        position: 'center',
+        confirmButtonColor: '#6366f1'
+      });
+    } finally {
+      setIsLogsLoading(false);
+    }
+  };
+
+  const handleView = (user) => {
+    if (!user || !user.id) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: 'Cannot view user: Missing user ID',
+        position: 'center',
+        confirmButtonColor: '#6366f1'
+      });
+      return;
+    }
+    setSelectedUser(user);
+    setUserLogs([]);
+    setIsViewModalOpen(true);
+    fetchUserLogs(user.id);
+  };
+
+  const getInitials = (firstName, lastName, email) => {
+    if (firstName || lastName) {
+      return `${firstName?.[0]?.toUpperCase() || ''}${lastName?.[0]?.toUpperCase() || ''}`;
+    }
+    return email?.[0]?.toUpperCase() || '?';
+  };
+
   const formatDate = (dateField) => {
     if (!dateField) return 'Unknown';
     const date = dateField.toDate ? dateField.toDate() : new Date(dateField);
@@ -84,13 +365,6 @@ export default function UserManagement() {
       month: 'short',
       day: 'numeric'
     });
-  };
-
-  const getInitials = (firstName, lastName, email) => {
-    if (firstName || lastName) {
-      return `${firstName?.[0]?.toUpperCase() || ''}${lastName?.[0]?.toUpperCase() || ''}`;
-    }
-    return email?.[0]?.toUpperCase() || '?';
   };
 
   // Pagination calculations
@@ -213,6 +487,7 @@ export default function UserManagement() {
                     </div>
                   </div>
                   <button
+                    onClick={() => handleView(user)}
                     className="p-1 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                     title="View user details"
                   >
@@ -302,6 +577,7 @@ export default function UserManagement() {
                   <td className="px-4 py-1.5 whitespace-nowrap">
                     <div className="flex items-center gap-1">
                       <button
+                        onClick={() => handleView(user)}
                         className="p-1 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                         title="View Details"
                       >
@@ -407,6 +683,16 @@ export default function UserManagement() {
             <TableView />
           </>
         )}
+
+        {/* View Modal */}
+        <UserViewModal
+          isOpen={isViewModalOpen}
+          onClose={() => setIsViewModalOpen(false)}
+          selectedUser={selectedUser}
+          userLogs={userLogs}
+          isLogsLoading={isLogsLoading}
+          logsPerPage={5}
+        />
       </div>
     </div>
   );

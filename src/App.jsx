@@ -21,6 +21,7 @@ import TestimonialsManagement from "./pages/TestimonialsManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
 import TherapyBookingsManagement from "./pages/TherapyBookingsManagement";
 import TestimonialVideoManagement from "./pages/TestimonialsVideoManagement";
+import UserActivitiesManagement from "./pages/UserActivitiesManagement";
 
 const LoginPage = lazy(() => import('./pages/auth/Login'))
 
@@ -114,8 +115,8 @@ const router = createBrowserRouter([
         element: (<SuspenseWrapper><UserManagement /></SuspenseWrapper>)
       },
       {
-        path: 'users',
-        element: (<SuspenseWrapper><UserManagement /></SuspenseWrapper>)
+        path: 'users-activities',
+        element: (<SuspenseWrapper><UserActivitiesManagement /></SuspenseWrapper>)
       },
       {
         path: 'therapy-booking',

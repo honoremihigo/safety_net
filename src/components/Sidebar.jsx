@@ -42,6 +42,8 @@ import {
   Calendar,
   MessageSquareCode,
   Video,
+  UserRoundSearch,
+  User,
 } from "lucide-react";
 import { Outlet, useLocation } from "react-router-dom";
 import { Link } from "react-router-dom";
@@ -92,7 +94,21 @@ const AdminSidebar = ({
 
   const navigationItems = [
     { id: "dashboard", label: "Dashboard", icon: Home, path: "/admin/dashboard" },
-    { id: "users", label: "Users", icon: Users, path: "/admin/users" },
+   
+    { 
+      id: "user-management", 
+      label: "User Management", 
+      icon: Users, 
+      isDropdown: true,
+      children: [
+        
+        { id: "users", label: "Users", icon: User, path: "/admin/users" },
+        { id: "users-activity", label: "Users Activities", icon: UserRoundSearch, path: "/admin/users-activities" },
+       
+
+      ]
+    },
+
     { 
       id: "tips", 
       label: "Tips Management", 
