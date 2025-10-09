@@ -51,10 +51,10 @@ import logo from "../assets/images/safety_net_logo.png"; // Ensure you have a lo
 const AdminSidebar = ({
   currentUser,
   sidebarOpen,
-  setSidebarOpen,
+
   mobileMenuOpen,
   setMobileMenuOpen,
-  onLogout,
+
 }) => {
   const location = useLocation();
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -64,13 +64,11 @@ const AdminSidebar = ({
     const currentPath = location.pathname;
     
     const tipsPages = [
-      "/admin/binge-eating-tips",
-      "/admin/body-shape-tips",
+ 
       "/admin/depression-tips",
-      "/admin/failing-tips",
+
       "/admin/general-tips",
-      "/admin/guilt-tips",
-      "/admin/panic-attack-tips"
+ 
     ];
     
     const contactsPages = [
@@ -101,18 +99,16 @@ const AdminSidebar = ({
       icon: Lightbulb, 
       isDropdown: true,
       children: [
-        { id: "binge-eating-tips", label: "Binge Eating Tips", icon: Apple, path: "/admin/binge-eating-tips" },
-        { id: "body-shape-tips", label: "Body Shape Tips", icon: UserX, path: "/admin/body-shape-tips" },
+
         { id: "depression-tips", label: "Depression Tips", icon: Frown, path: "/admin/depression-tips" },
-        { id: "failing-tips", label: "Failing Tips", icon: Target, path: "/admin/failing-tips" },
+
         { id: "general-tips", label: "General Tips", icon: Star, path: "/admin/general-tips" },
-        { id: "guilt-tips", label: "Guilt Tips", icon: Heart, path: "/admin/guilt-tips" },
-        { id: "panic-attack-tips", label: "Panic Attack Tips", icon: Zap, path: "/admin/panic-attack-tips" },
+
       ]
     },
     {
       id: "contacts",
-      label: "Contact & Crisis Management",
+      label: "Crisis Management",
       icon: Phone,
       isDropdown: true,
       children: [
@@ -121,7 +117,7 @@ const AdminSidebar = ({
         { id: "emergency-actions", label: "Emergency Actions", icon: ShieldAlert, path: "/admin/emergency-actions" },
       ]
     },
-    { id: "self-harm-coping-strategies", label: "Self Harm Coping", icon: HeartHandshake, path: "/admin/self-harm-coping-strategies" },
+    // { id: "self-harm-coping-strategies", label: "Self Harm Coping", icon: HeartHandshake, path: "/admin/self-harm-coping-strategies" },
     { id: "testimonials", label: "Testimonials", icon: Quote, path: "/admin/testimonials" },
     { id: "therapy", label: "Therapy Booking", icon: Calendar, path: "/admin/therapy-booking" },
     {
