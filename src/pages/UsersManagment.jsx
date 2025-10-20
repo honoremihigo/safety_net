@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight, Users, Search, RefreshCw, Mail, User, Calendar, Eye, X, Check, AlertTriangle } from "lucide-react";
+import { ChevronLeft, ChevronRight, Users, Search, RefreshCw, Mail, User, Calendar, Eye, X, Check, AlertTriangle, Trash } from "lucide-react";
 import { getAllUsers, getUserLogsById } from "../services/usersServices";
 import { isAuthenticated } from "../services/authService";
 import { useNavigate } from "react-router-dom";
@@ -349,6 +349,19 @@ export default function UserManagement() {
     setIsViewModalOpen(true);
     fetchUserLogs(user.id);
   };
+  const handleDelete = (user) => {
+    if (!user || !user.id) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: 'Cannot Delete user: Missing user ID',
+        position: 'center',
+        confirmButtonColor: '#6366f1'
+      });
+      return;
+    }
+    navigate(`/delete-account/${user.id}`);
+  };
 
   const getInitials = (firstName, lastName, email) => {
     if (firstName || lastName) {
@@ -405,6 +418,8 @@ export default function UserManagement() {
       setCurrentPage(currentPage + 1);
     }
   };
+
+
 
   // Pagination Component
   const PaginationComponent = () => (
@@ -582,6 +597,13 @@ export default function UserManagement() {
                         title="View Details"
                       >
                         <Eye size={14} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(user)}
+                        className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Delete User"
+                      >
+                        <Trash size={14} />
                       </button>
                     </div>
                   </td>
