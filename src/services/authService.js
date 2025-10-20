@@ -56,8 +56,9 @@ export const login = async (email, password) => {
 // Logout user
 export const logout = async () => {
   try {
-    localStorage.removeItem("currentUser");
-    localStorage.removeItem("isAuthenticated");
+    alert('Logged out successfully');
+    localStorage.setItem("currentUser",null);
+    localStorage.setItem("isAuthenticated",null);
     return true;
   } catch (error) {
     throw new Error("Logout failed");

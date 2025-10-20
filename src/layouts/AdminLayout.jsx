@@ -24,7 +24,6 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import AdminSidebar from "../components/Sidebar";
 import PWAInstallButton from "../components/PWAInstallButton";
-import { logout } from "../services/authService";
 
 const authService = {
   getCurrentUser: () => {
@@ -126,7 +125,6 @@ const AdminLayout = () => {
   const handleLogout = async () => {
     try {
       await authService.logout();
-      logout()
       setCurrentUser(null);
       console.log("Logged out successfully");
       navigate("/");
@@ -153,7 +151,7 @@ const AdminLayout = () => {
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0 lg:ml-72">
         {/* Top Header */}
-        <header className="bg-white shadow-sm border-b px-2 lg:px-2 fixed top-0 left-0 right-0 lg:left-72 z-20">
+        <header className="bg-white shadow-sm border-b px-2 lg:px-2 fixed top-0 left-0 right-0 lg:left-72 z-50">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
               <button
@@ -249,11 +247,11 @@ const AdminLayout = () => {
                         </p>
                       </div>
                       <button
-                        onClick={()=> handleLogout()}
-                        className="w-full text-left cursor-pointer  px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center space-x-3"
+                        onClick={handleLogout}
+                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center space-x-3"
                       >
                         <LogOut className="w-4 h-4" />
-                        <span>Sign Ot</span>
+                        <span>Sign Out</span>
                       </button>
                     </div>
                   </div>

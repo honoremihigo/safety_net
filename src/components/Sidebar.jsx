@@ -125,7 +125,7 @@ const AdminSidebar = ({
 
     // { id: "self-harm-coping-strategies", label: "Self Harm Coping", icon: HeartHandshake, path: "/admin/self-harm-coping-strategies" },
     { id: "testimonials", label: "Testimonials", icon: Quote, path: "/admin/testimonials" },
-      { id: "feedback", label: " Testimonial Videos", icon: Video, path: "/admin/testimonials-video" },
+      { id: "testimonaias-ve", label: " Testimonial Videos", icon: Video, path: "/admin/testimonials-video" },
    
     { id: "therapy", label: "Therapy Booking", icon: Calendar, path: "/admin/therapy-booking" },
   
