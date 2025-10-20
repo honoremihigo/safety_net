@@ -24,6 +24,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import AdminSidebar from "../components/Sidebar";
 import PWAInstallButton from "../components/PWAInstallButton";
+import { logout } from "../services/authService";
 
 const authService = {
   getCurrentUser: () => {
@@ -125,6 +126,7 @@ const AdminLayout = () => {
   const handleLogout = async () => {
     try {
       await authService.logout();
+      logout()
       setCurrentUser(null);
       console.log("Logged out successfully");
       navigate("/");
@@ -247,11 +249,11 @@ const AdminLayout = () => {
                         </p>
                       </div>
                       <button
-                        onClick={handleLogout}
-                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center space-x-3"
+                        onClick={()=> handleLogout()}
+                        className="w-full text-left cursor-pointer  px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center space-x-3"
                       >
                         <LogOut className="w-4 h-4" />
-                        <span>Sign Out</span>
+                        <span>Sign Ot</span>
                       </button>
                     </div>
                   </div>

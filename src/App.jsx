@@ -22,6 +22,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import TherapyBookingsManagement from "./pages/TherapyBookingsManagement";
 import TestimonialVideoManagement from "./pages/TestimonialsVideoManagement";
 import UserActivitiesManagement from "./pages/UserActivitiesManagement";
+import DeleteAccountPage from "./pages/UserDeletePage";
+import AccountDeletedPage from "./pages/SuccefullyDeletedAccount";
 
 const LoginPage = lazy(() => import('./pages/auth/Login'))
 
@@ -50,6 +52,15 @@ const router = createBrowserRouter([
       </SuspenseWrapper>
     ),
   },
+   {
+        path: 'delete-account/:userId',
+        element: (<SuspenseWrapper><DeleteAccountPage /></SuspenseWrapper>)
+      },
+   {
+        path: 'success-account-deleted',
+        element: (<SuspenseWrapper><AccountDeletedPage /></SuspenseWrapper>)
+      },
+
   {
     path: '/admin',
     element:<ProtectedRoute>  <AdminLayout /> </ProtectedRoute>,
@@ -114,6 +125,7 @@ const router = createBrowserRouter([
         path: 'users',
         element: (<SuspenseWrapper><UserManagement /></SuspenseWrapper>)
       },
+     
       {
         path: 'users-activities',
         element: (<SuspenseWrapper><UserActivitiesManagement /></SuspenseWrapper>)

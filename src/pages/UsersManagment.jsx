@@ -11,7 +11,7 @@ const UserViewModal = ({
   selectedUser, 
   userLogs = [], 
   isLogsLoading = false,
-  logsPerPage = 5 
+  logsPerPage = 4
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
 
